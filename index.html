@@ -1,0 +1,1387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Vidah Prime – Coworking para a Saúde</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F4F8F6;}
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-thumb{background:#2DB88A;border-radius:4px;}
+@media(max-width:768px){
+  .nav-links{display:none!important;}
+  .hamburger{display:block!important;}
+}
+@media(min-width:769px){
+  .hamburger{display:none!important;}
+}
+@media print{
+  body *{visibility:hidden;}
+  #contract-print,#contract-print *{visibility:visible;}
+  #contract-print{position:fixed;top:0;left:0;right:0;padding:32px;font-size:12pt;}
+}
+input:focus,select:focus,textarea:focus{border-color:#1A7A5C!important;outline:none;}
+</style>
+</head>
+<body>
+<div id="root" style="min-height:100vh;"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+/* ═══════════════════════════════════════════════════════════
+   PROTÓTIPO DE ALTA FIDELIDADE — VIDAH PRIME
+   Construído a partir da reunião de 07/08/2026 (Tamires, João,
+   Fernando e Raquel). Objetivo: validar FLUXO e NAVEGAÇÃO.
+   Marca (cores/logo) é provisória até a Raquel enviar a real.
+   ═══════════════════════════════════════════════════════════ */
+
+const C = {
+  forest:"#0B3D2E", emerald:"#1A7A5C", mint:"#2DB88A", mintLight:"#E8F5F0",
+  gold:"#C8963E", goldLight:"#FBF0D9", cream:"#F4F8F6", white:"#FFFFFF",
+  dark:"#151C19", muted:"#637A72", border:"#D0E4DC", error:"#DC3545",
+  warn:"#F6AD55", warnLight:"#FFF3E0", info:"#2D5F9A",
+};
+const F = { display:"'Playfair Display',Georgia,serif", body:"'Inter',system-ui,sans-serif" };
+
+/* Salas com os NOMES REAIS definidos na reunião.
+   Sem preço no card da landing (preferência do Fernando; valores por último). */
+const ROOMS = [
+  { id:1, name:"Sala Conecta 1", cat:"Conecta", tag:"Acolhedora", desc:"Ambiente sóbrio e silencioso para psicologia, terapia ocupacional e neuropedagogia.", size:"15m²", cap:3, img:"🛋️", priceHora:40, ambiente:"Sóbria", available:true, rating:5.0, reviews:124, accent:"#2D5F9A", specialties:["Psicologia","Terapia Ocupacional","Neuropedagogia","Fonoaudiologia"], features:["Isolamento acústico certificado","Iluminação regulável","Poltronas terapêuticas","Porta dupla sigilosa","Wi-Fi 500Mbps","Ar-cond. silencioso"] },
+  { id:2, name:"Sala Conecta 2", cat:"Conecta", tag:"Colorida", desc:"Espaço lúdico e colorido, ideal para atendimento infantil e terapias integrativas.", size:"16m²", cap:4, img:"🎨", priceHora:40, ambiente:"Colorida", available:true, rating:4.9, reviews:61, accent:"#7B3F9E", specialties:["Psicopedagogia","Terapia Infantil","Fonoaudiologia","Terapia Ocupacional"], features:["Decoração lúdica","Materiais infantis","Isolamento acústico","Tapete emborrachado","Wi-Fi 500Mbps","Ar-condicionado"] },
+  { id:3, name:"Sala Clínica 3", cat:"Clínica", tag:"Com maca", desc:"Sala com maca para procedimentos, dermatologia, estética, nutrição e clínica geral.", size:"18m²", cap:3, img:"🩺", priceHora:55, ambiente:"Sóbria", available:true, rating:4.8, reviews:87, accent:"#1A7A5C", specialties:["Dermatologia","Estética","Nutrição","Clínica Geral","Acupuntura"], features:["Maca clínica ajustável","Pia com torneira sem toque","Iluminação LED profissional","Frigobar para insumos","Wi-Fi 500Mbps","Ar-cond. inverter"] },
+  { id:4, name:"Sala Odontológica 4", cat:"Odontológica", tag:"Equipada", desc:"Consultório odontológico completo com cadeira, equipo e sugador para todas as especialidades.", size:"20m²", cap:2, img:"🦷", priceHora:70, ambiente:"Sóbria", available:true, rating:4.9, reviews:52, accent:"#0B7CA8", specialties:["Odontologia","Ortodontia","Implantodontia","Endodontia"], features:["Cadeira odontológica completa","Equipo + sugador","Autoclave de bancada","Raio-X periapical","Compressor silencioso","Wi-Fi 500Mbps"] },
+  { id:5, name:"Sala Odontológica 5", cat:"Odontológica", tag:"Premium", desc:"Consultório odontológico premium com decoração diferenciada e conforto para o paciente.", size:"22m²", cap:2, img:"✨", priceHora:70, ambiente:"Colorida", available:false, rating:4.8, reviews:34, accent:"#C8963E", specialties:["Odontologia Estética","Harmonização","Ortodontia"], features:["Cadeira odontológica top de linha","Fotopolimerizador","Autoclave","Iluminação de conforto","Smart TV para paciente","Wi-Fi 500Mbps"] },
+  { id:6, name:"Sala de Reuniões e Palestras", cat:"Reuniões", tag:"Até 20 pessoas", desc:"Espaço amplo para palestras, supervisões clínicas, treinamentos e reuniões multidisciplinares.", size:"45m²", cap:20, img:"📊", priceHora:120, ambiente:"Sóbria", available:true, rating:4.9, reviews:29, accent:"#0B3D2E", specialties:["Palestras","Supervisão Clínica","Treinamentos","Workshops"], features:["Projetor 4K + tela","TV 65\" + HDMI","Cadeiras para 20 pessoas","Sistema de som","Videoconferência","Coffee break opcional"] },
+];
+
+/* Modos de locação discutidos: avulso, pacote de horas (30 dias) e período fixo. */
+const USE_MODES = [
+  { id:"avulso", name:"Avulso por hora", sub:"Pague só o que usar", icon:"⏱️", desc:"Ideal para quem está começando ou atende esporadicamente. Reserve hora a hora, sem mensalidade.", discount:0, badge:null },
+  { id:"pacote", name:"Pacote de horas", sub:"8h, 16h ou 30h no mês", icon:"📦", desc:"Compre um bloco de horas e use ao longo de 30 dias. Quanto maior o pacote, mais barata fica a hora.", discount:null, badge:"⭐ Mais popular" },
+  { id:"periodo", name:"Período fixo", sub:"Turno recorrente ou mensal", icon:"📆", desc:"Reserve o mesmo turno toda semana (ex.: segundas de manhã) ou a sala fechada no mês inteiro.", discount:0.3, badge:"👑 Melhor custo" },
+];
+
+/* Pacotes de horas: hora mais barata conforme o volume (regra da reunião). */
+const PACKAGES = [
+  { id:"p8", hours:8, off:0.10, label:"8 horas", sub:"~10% de desconto na hora" },
+  { id:"p16", hours:16, off:0.18, label:"16 horas", sub:"~18% de desconto na hora" },
+  { id:"p30", hours:30, off:0.28, label:"30 horas", sub:"~28% de desconto na hora" },
+];
+
+/* Add-on de endereço fiscal (upsell — modelo Company Hero citado na reunião). */
+const FISCAL_ADDON = { price:89, per:"/mês", note:"Disponível para contratos de 12 meses. Uso do endereço para CNPJ, conselhos e correspondências." };
+
+const TESTIMONIALS = [
+  { name:"Dra. Amanda Ferreira", role:"Psicóloga · CRP 06/123456", text:"Tenho espaço profissional sem os custos fixos de uma sala própria. A validação no conselho passa segurança pra mim e pros meus pacientes.", rating:5, av:"AF", plan:"Pacote 16h" },
+  { name:"Dr. Carlos Mendes", role:"Nutricionista · CRN 7890", text:"O cadastro com contrato assinado uma vez só é ótimo. Depois é só reservar e atender. Simples de verdade.", rating:5, av:"CM", plan:"Pacote 8h" },
+  { name:"Dra. Juliana Costa", role:"Dermatologista · CRM 45678", text:"A Sala Clínica tem tudo que preciso pros procedimentos. Higiene impecável e o bloqueio de limpeza entre atendimentos faz diferença.", rating:5, av:"JC", plan:"Período fixo" },
+  { name:"Dr. Roberto Alves", role:"Cirurgião-Dentista · CRO 90123", text:"Consultório odontológico completo por hora. Antes eu pagava um aluguel cheio pra usar pouco. Aqui pago pelo que uso.", rating:5, av:"RA", plan:"Avulso" },
+];
+
+const FAQ_DATA = [
+  { q:"Preciso me cadastrar antes de reservar?", a:"Sim. Antes da primeira reserva você faz um cadastro único, envia 3 documentos (carteirinha do conselho, comprovante de endereço e documento pessoal) e assina o contrato digitalmente. Depois de aprovado, é só reservar e pagar. Você não repete isso a cada reserva." },
+  { q:"Por que vocês validam meu conselho de classe?", a:"Para manter um ambiente seguro e sério. Conferimos no conselho (CRM, CRO, CRP, CRN e outros) se você está ativo antes de liberar o acesso. Assim ninguém sem registro atende dentro do espaço." },
+  { q:"Como funciona o pacote de horas?", a:"Você compra um bloco (8h, 16h ou 30h) e usa ao longo de 30 dias. Cada reserva desconta as horas do seu saldo. Quanto maior o pacote, mais barata fica a hora. Horas não usadas no período não acumulam." },
+  { q:"Sempre tem contrato, mesmo por 1 hora?", a:"Sim. Como é um coworking da saúde, o contrato existe para proteger você e a Vidah Prime juridicamente, mesmo em locações curtas. Ele é assinado uma vez, no cadastro." },
+  { q:"Tem intervalo de limpeza entre atendimentos?", a:"Sim. O sistema bloqueia automaticamente 30 minutos após cada reserva para higienização da sala. É essencial na área da saúde." },
+  { q:"Posso cancelar uma reserva?", a:"Pode. Cancelamentos com mais de 24h de antecedência devolvem a hora ao seu saldo. Com menos de 24h, a hora é consumida. É a regra que mantém a agenda justa para todos." },
+  { q:"Posso usar o endereço para meu CNPJ?", a:"Sim, com o adicional de endereço fiscal, disponível para contratos de 12 meses. Você usa o endereço para abertura de CNPJ, registro nos conselhos e correspondências." },
+  { q:"Como falo com um humano?", a:"A Vi, nossa assistente, tira dúvidas 24/7 e conecta você com a equipe. Também temos WhatsApp e e-mail para negociar pacotes personalizados." },
+];
+
+const HOW = [
+  { n:"01", e:"📝", t:"Cadastre-se e valide", d:"Envie seus documentos e o registro do conselho. Nós validamos e você assina o contrato uma vez." },
+  { n:"02", e:"🏥", t:"Escolha a sala", d:"Conecta, Clínica, Odontológica ou Reuniões. Cada uma equipada para a sua especialidade." },
+  { n:"03", e:"📅", t:"Reserve data e hora", d:"Veja a disponibilidade em tempo real. Avulso, pacote de horas ou período fixo." },
+  { n:"04", e:"✅", t:"Pague e atenda", d:"PIX, cartão ou boleto. Confirmação na hora e comprovante na sua área do cliente." },
+];
+
+const DIFERENCIAIS = [
+  { e:"🛡️", t:"Cadastro validado", d:"Todo profissional passa por validação no conselho de classe. Ambiente seguro e sério." },
+  { e:"🧹", t:"Higienização garantida", d:"30 minutos de limpeza bloqueados automaticamente entre cada atendimento." },
+  { e:"📜", t:"Contrato digital", d:"Assinado uma vez, com validade jurídica. Protege você e mantém tudo em conformidade." },
+  { e:"📍", t:"Endereço fiscal", d:"Adicional para usar o endereço no seu CNPJ e registros profissionais." },
+  { e:"🤖", t:"Assistente Vi 24/7", d:"Tira dúvidas, ajuda a agendar e conecta com a equipe a qualquer hora." },
+  { e:"💳", t:"Pagamento flexível", d:"PIX, cartão em até 12x ou boleto. Saldo de horas e histórico sempre à mão." },
+];
+
+/* Agenda mock do painel administrativo. */
+const TODAY_SCHEDULE = [
+  { time:"08:00", end:"09:00", prof:"Dra. Amanda Ferreira", spec:"Psicóloga", room:1, status:"confirmed" },
+  { time:"09:00", end:"09:30", prof:"— Limpeza —", spec:"Higienização", room:1, status:"cleaning" },
+  { time:"09:30", end:"11:00", prof:"Dr. Roberto Alves", spec:"Dentista", room:4, status:"in_progress" },
+  { time:"10:00", end:"12:00", prof:"Dra. Juliana Costa", spec:"Dermatologista", room:3, status:"in_progress" },
+  { time:"14:00", end:"16:00", prof:"Dr. Carlos Mendes", spec:"Nutricionista", room:3, status:"pending" },
+  { time:"16:00", end:"17:00", prof:"Dra. Patrícia Lima", spec:"Fonoaudióloga", room:2, status:"confirmed" },
+];
+
+/* Cadastros aguardando validação no conselho (painel admin). */
+const PENDING_SIGNUPS = [
+  { id:1, name:"Dr. Marcos Oliveira", council:"CRP 06/998877", spec:"Psicólogo", date:"Hoje, 11:20", docs:3 },
+  { id:2, name:"Dra. Beatriz Nunes", council:"CRO-SP 55432", spec:"Ortodontista", date:"Hoje, 09:05", docs:3 },
+  { id:3, name:"Dr. Felipe Sá", council:"CRM 112233", spec:"Dermatologista", date:"Ontem, 18:40", docs:2 },
+];
+
+const TIMES = ["07:00","08:00","09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+const MONTHS_FULL = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
+const DAYS_S = ["D","S","T","Q","Q","S","S"];
+const BUSY = ["09:00","10:00","14:00"];
+
+const genId = () => Math.random().toString(36).substr(2,8).toUpperCase();
+const money = (n) => "R$ " + Number(n).toFixed(2).replace(".",",");
+
+function VidahPrime() {
+  const [view,setView] = useState("landing");
+  const [menu,setMenu] = useState(false);
+  const [faq,setFaq] = useState(null);
+  const [scrollY,setScrollY] = useState(0);
+
+  // Conta / onboarding
+  const [account,setAccount] = useState(null);   // {name,email,...,status:'pending'|'approved'}
+  const [obStep,setObStep] = useState(0);
+  const [obForm,setObForm] = useState({name:"",email:"",phone:"",cpf:"",council:"",councilType:"CRP",spec:"",docs:{carteira:false,endereco:false,pessoal:false},accept:false});
+  const [pendingAction,setPendingAction] = useState(null); // rota pretendida antes do cadastro
+
+  // Booking
+  const [step,setStep] = useState(0);
+  const [room,setRoom] = useState(null);
+  const [useMode,setUseMode] = useState(null);
+  const [pkg,setPkg] = useState(null);
+  const [dates,setDates] = useState([]);
+  const [times,setTimes] = useState([]);
+  const [calM,setCalM] = useState(new Date().getMonth());
+  const [calY,setCalY] = useState(new Date().getFullYear());
+  const [pay,setPay] = useState("pix");
+  const [fiscal,setFiscal] = useState(false);
+  const [lastBooking,setLastBooking] = useState(null);
+
+  // Cliente
+  const [hourBalance,setHourBalance] = useState(0);
+  const [myBookings,setMyBookings] = useState([]);
+  const [clientTab,setClientTab] = useState("resumo");
+
+  // Admin
+  const [adminLogged,setAdminLogged] = useState(false);
+  const [adminTab,setAdminTab] = useState("aprovacoes");
+  const [signups,setSignups] = useState(PENDING_SIGNUPS);
+  const [blockedSlots,setBlockedSlots] = useState([]);
+
+  // Chat Vi
+  const [chatOpen,setChatOpen] = useState(false);
+  const [chatFull,setChatFull] = useState(false);
+  const [leadStage,setLeadStage] = useState(0); // captação de lead
+  const [lead,setLead] = useState({name:"",email:"",interest:""});
+  const [msgs,setMsgs] = useState([{role:"assistant",content:"Olá! Sou a Vi, assistente da Vidah Prime 🌿\n\nPosso ajudar com salas, planos, cadastro e agendamento. E se quiser, conecto você com a equipe.\n\nComo posso te ajudar?"}]);
+  const [chatIn,setChatIn] = useState("");
+  const chatEnd = useRef(null);
+
+  useEffect(()=>{
+    const h = ()=>setScrollY(window.scrollY);
+    window.addEventListener("scroll",h);
+    return ()=>window.removeEventListener("scroll",h);
+  },[]);
+  useEffect(()=>{ chatEnd.current?.scrollIntoView({behavior:"smooth"}); },[msgs]);
+
+  const go = (v,s=0) => { setView(v); setStep(s); setMenu(false); window.scrollTo(0,0); };
+
+  // Gate de cadastro: só entra no booking se conta aprovada.
+  const requireAccount = (nextView="booking") => {
+    if(account && account.status==="approved"){ go(nextView,0); return; }
+    setPendingAction(nextView);
+    setObStep(account?3:0);
+    go("onboarding");
+  };
+  const startBook = (r=null) => { if(r) setRoom(r); requireAccount("booking"); };
+
+  // ─── Onboarding helpers ───
+  const obCanNext = () => {
+    if(obStep===0) return obForm.name&&obForm.email&&obForm.phone&&obForm.cpf;
+    if(obStep===1) return obForm.council&&obForm.spec;
+    if(obStep===2) return obForm.docs.carteira&&obForm.docs.endereco&&obForm.docs.pessoal;
+    if(obStep===3) return obForm.accept;
+    return true;
+  };
+  const submitSignup = () => {
+    setAccount({...obForm,status:"pending",id:genId()});
+    setObStep(4);
+  };
+  const approveOwnAccount = () => {
+    setAccount(a=>({...a,status:"approved"}));
+    setObStep(5);
+  };
+
+  // ─── Booking helpers ───
+  const getDays = (m,y) => {
+    const fd = new Date(y,m,1).getDay(), total = new Date(y,m+1,0).getDate();
+    const d = Array(fd).fill(null);
+    for(let i=1;i<=total;i++) d.push(i);
+    return d;
+  };
+  const isPast = (d) => d && new Date(calY,calM,d) < new Date(new Date().setHours(0,0,0,0));
+  const isSoon = (d) => { if(!d) return false; const diff=(new Date(calY,calM,d)-new Date(new Date().setHours(0,0,0,0)))/86400000; return diff>=0&&diff<2; };
+  const isDSel = (d) => d && dates.includes(`${calY}-${calM}-${d}`);
+  const togDate = (d) => {
+    if(!d||isPast(d)) return;
+    const k=`${calY}-${calM}-${d}`;
+    setDates(p=>p.includes(k)?p.filter(x=>x!==k):[...p,k]);
+  };
+  const togTime = (t) => setTimes(p=>p.includes(t)?p.filter(x=>x!==t):[...p,t]);
+
+  const hourRate = () => {
+    if(!room) return 0;
+    if(useMode?.id==="pacote"&&pkg) return room.priceHora*(1-pkg.off);
+    if(useMode?.id==="periodo") return room.priceHora*(1-0.30);
+    return room.priceHora;
+  };
+  const bookingTotal = () => {
+    const slots = times.length*Math.max(dates.length,1);
+    if(useMode?.id==="pacote"&&pkg) return room.priceHora*(1-pkg.off)*pkg.hours + (fiscal?FISCAL_ADDON.price:0);
+    if(useMode?.id==="periodo") return room.priceHora*(1-0.30)*times.length*Math.max(dates.length,1)*4 + (fiscal?FISCAL_ADDON.price:0);
+    return hourRate()*slots + (fiscal?FISCAL_ADDON.price:0);
+  };
+
+  const bookCanNext = () => {
+    if(step===0) return !!room;
+    if(step===1) return !!useMode && (useMode.id!=="pacote"||!!pkg);
+    if(step===2) return dates.length>0&&times.length>0;
+    return true;
+  };
+
+  const confirmBooking = () => {
+    const b = { id:genId(), room, useMode, pkg, dates:[...dates], times:[...times], total:bookingTotal(), pay, fiscal, when:new Date() };
+    setLastBooking(b);
+    setMyBookings(p=>[b,...p]);
+    if(useMode?.id==="pacote"&&pkg) setHourBalance(bal=>bal + pkg.hours - times.length*Math.max(dates.length,1));
+    setStep(4);
+  };
+
+  // ─── Chat Vi (mock com captação de lead) ───
+  const pushMsg = (role,content) => setMsgs(p=>[...p,{role,content}]);
+  const botReply = (u) => {
+    const t = u.toLowerCase();
+    if(t.includes("sala")) return "Temos Sala Conecta (psicologia e terapias), Sala Clínica (procedimentos e maca), Sala Odontológica (equipada) e a Sala de Reuniões e Palestras. Quer que eu te leve pra ver as salas? 🌿";
+    if(t.includes("plano")||t.includes("preç")||t.includes("valor")||t.includes("pacote")) return "Você pode alugar avulso por hora, comprar um pacote (8h, 16h ou 30h com desconto) ou fechar um período fixo. Quanto maior o pacote, mais barata a hora. Quer ver os valores?";
+    if(t.includes("cadastr")||t.includes("document")) return "O cadastro é único: você envia carteirinha do conselho, comprovante de endereço e documento pessoal, assina o contrato uma vez e, após validarmos seu registro, já pode reservar. Posso começar seu cadastro?";
+    if(t.includes("fiscal")||t.includes("cnpj")) return "Com o adicional de endereço fiscal (contratos de 12 meses) você usa nosso endereço no CNPJ e nos conselhos. Quer que eu chame a equipe pra detalhar?";
+    if(t.includes("humano")||t.includes("equipe")||t.includes("falar")||t.includes("atend")) return "__LEAD__";
+    return "Posso ajudar com salas, planos, cadastro, endereço fiscal e agendamento. Se preferir, falo com a equipe pra você. O que faz mais sentido? 🙂";
+  };
+  const sendChat = (directMsg=null) => {
+    const u = (directMsg||chatIn).trim();
+    if(!u) return;
+    if(!directMsg) setChatIn("");
+    pushMsg("user",u);
+
+    // Fluxo de captação de lead
+    if(leadStage===1){ setLead(l=>({...l,name:u})); setLeadStage(2); setTimeout(()=>pushMsg("assistant",`Prazer, ${u.split(" ")[0]}! Qual o melhor e-mail pra equipe te retornar?`),400); return; }
+    if(leadStage===2){ setLead(l=>({...l,email:u})); setLeadStage(3); setTimeout(()=>pushMsg("assistant","Perfeito. Em uma frase, o que você procura? (ex.: 2 turnos de sala odontológica por semana)"),400); return; }
+    if(leadStage===3){
+      setLead(l=>({...l,interest:u})); setLeadStage(4);
+      const score = Math.min(98, 60 + u.length%38);
+      setTimeout(()=>pushMsg("assistant",`Tudo certo! ✅ Encaminhei seu contato para a equipe da Vidah Prime.\n\n📋 Lead registrado no CRM\n⭐ Score do profissional: ${score}/100\n\nA Raquel ou o Fernando vão te retornar em breve. Enquanto isso, quer adiantar seu cadastro?`),500);
+      return;
+    }
+
+    setTimeout(()=>{
+      const r = botReply(u);
+      if(r==="__LEAD__"){ setLeadStage(1); pushMsg("assistant","Claro! Vou te conectar com a equipe. Qual seu nome?"); }
+      else pushMsg("assistant",r);
+    },450);
+  };
+
+  const navBg = view==="landing" && scrollY<80 ? "transparent" : "rgba(255,255,255,0.97)";
+  const navColor = view==="landing" && scrollY<80 ? "#fff" : C.dark;
+
+  // ════════════════════════════════════════════ NAVBAR
+  const Navbar = () => (
+    <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,height:64,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 20px",background:navBg,backdropFilter:"blur(20px)",transition:"background 0.3s",boxShadow:view==="landing"&&scrollY<80?"none":"0 1px 20px rgba(0,0,0,0.08)"}}>
+      <button onClick={()=>go("landing")} style={{background:"none",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:9}}>
+        <span style={{fontSize:22}}>🌿</span>
+        <div style={{textAlign:"left",lineHeight:1}}>
+          <div style={{fontFamily:F.display,fontSize:19,fontWeight:700,color:navColor}}>Vidah Prime</div>
+          <div style={{fontSize:9,letterSpacing:2,color:navColor,opacity:0.65,textTransform:"uppercase",marginTop:2}}>Espaço de Saúde</div>
+        </div>
+      </button>
+      <div className="nav-links" style={{display:"flex",gap:26,alignItems:"center"}}>
+        {[["Salas","salas"],["Como funciona","como"],["Planos","planos"],["FAQ","faq"]].map(([l,id])=>(
+          <a key={l} href={`#${id}`} style={{color:navColor,textDecoration:"none",fontSize:14,fontWeight:500,opacity:0.85}}
+            onClick={e=>{ if(view!=="landing"){e.preventDefault();go("landing");} }}>{l}</a>
+        ))}
+        {account?.status==="approved" ? (
+          <button onClick={()=>go("client")} style={{background:"rgba(255,255,255,0.12)",color:navColor,border:`1px solid ${view==="landing"&&scrollY<80?"rgba(255,255,255,0.3)":C.border}`,borderRadius:8,padding:"6px 14px",fontSize:13,cursor:"pointer",fontFamily:F.body}}>
+            👤 Minha conta
+          </button>
+        ) : (
+          <button onClick={()=>requireAccount("client")} style={{background:"rgba(255,255,255,0.12)",color:navColor,border:`1px solid ${view==="landing"&&scrollY<80?"rgba(255,255,255,0.3)":C.border}`,borderRadius:8,padding:"6px 14px",fontSize:13,cursor:"pointer",fontFamily:F.body}}>
+            Entrar
+          </button>
+        )}
+        <button onClick={()=>go("admin")} style={{background:"none",color:navColor,border:"none",fontSize:12,cursor:"pointer",fontFamily:F.body,opacity:0.7}} title="Painel administrativo">
+          🔑 Admin
+        </button>
+        <button onClick={()=>startBook()} style={{background:C.gold,color:"#fff",border:"none",borderRadius:10,padding:"10px 22px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:F.body}}>
+          Reservar →
+        </button>
+      </div>
+      <button className="hamburger" onClick={()=>setMenu(m=>!m)} style={{background:"none",border:"none",cursor:"pointer",color:navColor,fontSize:22,display:"none"}}>
+        {menu?"✕":"☰"}
+      </button>
+      {menu && (
+        <div style={{position:"absolute",top:64,left:0,right:0,background:"#fff",boxShadow:"0 8px 32px rgba(0,0,0,0.15)",padding:24,display:"flex",flexDirection:"column",gap:16,zIndex:300}}>
+          {[["Salas","salas"],["Como funciona","como"],["Planos","planos"],["FAQ","faq"]].map(([l,id])=>(
+            <a key={l} href={`#${id}`} onClick={()=>{setMenu(false); if(view!=="landing")go("landing");}} style={{color:C.dark,textDecoration:"none",fontWeight:600,fontSize:16}}>{l}</a>
+          ))}
+          <button onClick={()=>{account?.status==="approved"?go("client"):requireAccount("client");}} style={{background:C.cream,border:"none",borderRadius:10,padding:12,fontSize:15,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>
+            👤 {account?.status==="approved"?"Minha conta":"Entrar / Cadastrar"}
+          </button>
+          <button onClick={()=>go("admin")} style={{background:"none",border:`1px solid ${C.border}`,borderRadius:10,padding:12,fontSize:14,cursor:"pointer",fontFamily:F.body,color:C.muted}}>
+            🔑 Painel administrativo
+          </button>
+          <button onClick={()=>startBook()} style={{background:C.gold,color:"#fff",border:"none",borderRadius:10,padding:14,fontSize:16,fontWeight:700,cursor:"pointer",fontFamily:F.body}}>
+            Reservar agora →
+          </button>
+        </div>
+      )}
+    </nav>
+  );
+
+  // ════════════════════════════════════════════ LANDING (estilo Livance: valores por último)
+  const Landing = () => (
+    <div>
+      {/* HERO */}
+      <section style={{background:`linear-gradient(135deg,${C.forest} 0%,#1E6B50 60%,#1A7A5C 100%)`,minHeight:"100vh",display:"flex",flexDirection:"column",justifyContent:"center",padding:"120px 24px 80px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:-120,right:-120,width:480,height:480,borderRadius:"50%",background:"rgba(255,255,255,0.03)"}}/>
+        <div style={{position:"absolute",bottom:-60,left:-80,width:320,height:320,borderRadius:"50%",background:"rgba(255,255,255,0.04)"}}/>
+        <div style={{position:"absolute",top:"35%",right:"8%",width:120,height:120,borderRadius:"50%",background:"rgba(200,150,62,0.15)"}}/>
+        <div style={{maxWidth:900,margin:"0 auto",textAlign:"center",position:"relative",zIndex:1}}>
+          <div style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(255,255,255,0.1)",border:"1px solid rgba(255,255,255,0.2)",borderRadius:100,padding:"6px 18px",marginBottom:28,color:"#fff",fontSize:13,fontWeight:500,letterSpacing:1}}>
+            🌿 COWORKING PREMIUM PARA A SAÚDE
+          </div>
+          <h1 style={{fontFamily:F.display,color:"#fff",fontSize:"clamp(34px,6vw,64px)",fontWeight:700,lineHeight:1.12,marginBottom:24}}>
+            Seu consultório ideal,<br/>
+            <span style={{color:"#F5D78E"}}>quando e como precisar</span>
+          </h1>
+          <p style={{color:"rgba(255,255,255,0.82)",fontSize:"clamp(16px,2.5vw,19px)",lineHeight:1.75,marginBottom:40,maxWidth:640,margin:"0 auto 40px"}}>
+            Salas equipadas e validadas para profissionais da saúde. Cadastro seguro, contrato assinado uma vez e reserva por hora, pacote ou período. Sem burocracia repetida.
+          </p>
+          {/* Vídeo de apresentação (placeholder, estilo Livance) */}
+          <div style={{maxWidth:560,margin:"0 auto 40px",aspectRatio:"16/9",borderRadius:18,background:"rgba(0,0,0,0.25)",border:"1px solid rgba(255,255,255,0.18)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",cursor:"pointer",position:"relative",overflow:"hidden"}}>
+            <div style={{width:64,height:64,borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,marginBottom:12}}>▶</div>
+            <div style={{color:"#fff",fontSize:14,fontWeight:600}}>Conheça a Vidah Prime em 60 segundos</div>
+            <div style={{color:"rgba(255,255,255,0.6)",fontSize:12,marginTop:4}}>Vídeo de apresentação (a inserir)</div>
+          </div>
+          <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
+            <button onClick={()=>startBook()} style={{background:C.gold,color:"#fff",border:"none",borderRadius:12,padding:"16px 36px",fontSize:16,fontWeight:700,cursor:"pointer",boxShadow:"0 8px 32px rgba(200,150,62,0.5)",fontFamily:F.body}}>
+              Quero me cadastrar →
+            </button>
+            <a href="#salas" style={{background:"rgba(255,255,255,0.12)",color:"#fff",border:"1px solid rgba(255,255,255,0.3)",borderRadius:12,padding:"16px 32px",fontSize:16,fontWeight:600,textDecoration:"none",backdropFilter:"blur(10px)"}}>
+              Ver salas
+            </a>
+          </div>
+          <div style={{display:"flex",gap:"clamp(20px,5vw,56px)",justifyContent:"center",flexWrap:"wrap",marginTop:56,paddingTop:44,borderTop:"1px solid rgba(255,255,255,0.15)"}}>
+            {[["200+","Profissionais cadastrados"],["6","Salas especializadas"],["100%","Cadastros validados"],["24/7","Assistente Vi"]].map(([n,l])=>(
+              <div key={l} style={{textAlign:"center",color:"#fff"}}>
+                <div style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,36px)",fontWeight:700,color:"#F5D78E"}}>{n}</div>
+                <div style={{fontSize:13,opacity:0.7,marginTop:4}}>{l}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COMO FUNCIONA */}
+      <section id="como" style={{padding:"80px 24px",background:C.white}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:56}}>
+            <span style={{color:C.mint,fontWeight:600,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Simples e seguro</span>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,40px)",fontWeight:700,color:C.dark,marginTop:8}}>Como funciona</h2>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(210px,1fr))",gap:28}}>
+            {HOW.map(({n,e,t,d})=>(
+              <div key={n} style={{textAlign:"center",padding:"28px 20px",position:"relative"}}>
+                <div style={{width:72,height:72,borderRadius:"50%",background:C.mintLight,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:32}}>{e}</div>
+                <div style={{color:C.mint,fontWeight:700,fontSize:11,letterSpacing:2,marginBottom:8}}>PASSO {n}</div>
+                <h3 style={{fontFamily:F.display,fontSize:18,fontWeight:600,color:C.dark,marginBottom:10}}>{t}</h3>
+                <p style={{color:C.muted,lineHeight:1.7,fontSize:13.5}}>{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DIFERENCIAIS */}
+      <section style={{padding:"80px 24px",background:`linear-gradient(135deg,${C.forest},${C.emerald})`}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:52}}>
+            <span style={{color:"#F5D78E",fontWeight:600,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Por que a Vidah Prime</span>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,40px)",fontWeight:700,color:"#fff",marginTop:8}}>Feito para a área da saúde</h2>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(240px,1fr))",gap:26}}>
+            {DIFERENCIAIS.map(({e,t,d})=>(
+              <div key={t} style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.12)",borderRadius:18,padding:"26px 22px"}}>
+                <div style={{fontSize:34,marginBottom:14}}>{e}</div>
+                <h3 style={{fontFamily:F.display,fontSize:18,fontWeight:600,marginBottom:8,color:"#F5D78E"}}>{t}</h3>
+                <p style={{color:"rgba(255,255,255,0.75)",fontSize:13.5,lineHeight:1.7}}>{d}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SALAS (sem preço no card — valores só na seção de planos) */}
+      <section id="salas" style={{padding:"80px 24px",background:C.cream}}>
+        <div style={{maxWidth:1200,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:52}}>
+            <span style={{color:C.mint,fontWeight:600,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Nossos espaços</span>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,40px)",fontWeight:700,color:C.dark,marginTop:8,marginBottom:14}}>Nossas salas</h2>
+            <p style={{color:C.muted,fontSize:16,maxWidth:600,margin:"0 auto"}}>Cada sala foi preparada para um grupo de especialidades, com equipamentos profissionais e o ambiente certo para o seu atendimento.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))",gap:24}}>
+            {ROOMS.map(r=>(
+              <div key={r.id} style={{background:C.white,borderRadius:20,overflow:"hidden",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",transition:"transform 0.2s,box-shadow 0.2s"}}
+                onMouseOver={e=>{e.currentTarget.style.transform="translateY(-4px)";e.currentTarget.style.boxShadow="0 12px 40px rgba(0,0,0,0.12)";}}
+                onMouseOut={e=>{e.currentTarget.style.transform="translateY(0)";e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,0.06)";}}>
+                <div style={{height:160,background:`linear-gradient(135deg,${r.accent}EE,${r.accent}99)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:56,position:"relative"}}>
+                  {r.img}
+                  <span style={{position:"absolute",top:12,left:12,background:"rgba(255,255,255,0.18)",backdropFilter:"blur(8px)",color:"#fff",fontSize:11,fontWeight:600,padding:"4px 12px",borderRadius:100}}>{r.tag}</span>
+                  <span style={{position:"absolute",top:12,right:12,background:"rgba(0,0,0,0.28)",color:"#fff",fontSize:10,fontWeight:600,padding:"4px 10px",borderRadius:100}}>📷 Foto real (a inserir)</span>
+                  {!r.available&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{background:C.error,color:"#fff",padding:"6px 18px",borderRadius:100,fontSize:13,fontWeight:700}}>Em breve</span></div>}
+                </div>
+                <div style={{padding:24}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
+                    <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:600,color:C.dark}}>{r.name}</h3>
+                    <span style={{background:r.ambiente==="Colorida"?C.goldLight:C.mintLight,color:r.ambiente==="Colorida"?C.gold:C.emerald,fontSize:10,fontWeight:700,padding:"3px 9px",borderRadius:100,whiteSpace:"nowrap"}}>{r.ambiente}</span>
+                  </div>
+                  <p style={{color:C.muted,fontSize:13,lineHeight:1.65,marginBottom:14}}>{r.desc}</p>
+                  <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+                    <span style={{background:C.mintLight,color:C.emerald,fontSize:11,padding:"3px 10px",borderRadius:100}}>📐 {r.size}</span>
+                    <span style={{background:C.mintLight,color:C.emerald,fontSize:11,padding:"3px 10px",borderRadius:100}}>👥 até {r.cap}</span>
+                    <span style={{background:C.goldLight,color:C.gold,fontSize:11,padding:"3px 10px",borderRadius:100}}>⭐ {r.rating} ({r.reviews})</span>
+                  </div>
+                  <div style={{borderTop:`1px solid ${C.border}`,paddingTop:12,marginBottom:16}}>
+                    <div style={{fontSize:11,color:C.muted,marginBottom:6,fontWeight:600,textTransform:"uppercase",letterSpacing:1}}>Especialidades</div>
+                    <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+                      {r.specialties.map(s=><span key={s} style={{fontSize:11.5,color:C.dark,background:C.cream,padding:"3px 9px",borderRadius:6}}>{s}</span>)}
+                    </div>
+                  </div>
+                  <button disabled={!r.available} onClick={()=>{if(r.available)startBook(r);}}
+                    style={{width:"100%",background:r.available?r.accent:"#CCC",color:"#fff",border:"none",borderRadius:10,padding:"12px",fontSize:14,fontWeight:600,cursor:r.available?"pointer":"not-allowed",fontFamily:F.body}}>
+                    {r.available?"Reservar esta sala":"Em breve"}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* DEPOIMENTOS */}
+      <section style={{padding:"80px 24px",background:C.white}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:52}}>
+            <span style={{color:C.mint,fontWeight:600,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Quem usa, aprova</span>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,40px)",fontWeight:700,color:C.dark,marginTop:8}}>Profissionais que confiam na Vidah Prime</h2>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(260px,1fr))",gap:24}}>
+            {TESTIMONIALS.map(t=>(
+              <div key={t.name} style={{background:C.cream,borderRadius:20,padding:28,boxShadow:"0 4px 20px rgba(0,0,0,0.05)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+                  <div style={{color:C.gold,fontSize:16}}>★★★★★</div>
+                  <span style={{background:C.mintLight,color:C.emerald,fontSize:10,fontWeight:700,padding:"3px 9px",borderRadius:100}}>{t.plan}</span>
+                </div>
+                <p style={{color:C.dark,fontSize:14,lineHeight:1.8,marginBottom:22,fontStyle:"italic"}}>"{t.text}"</p>
+                <div style={{display:"flex",alignItems:"center",gap:12}}>
+                  <div style={{width:42,height:42,borderRadius:"50%",background:`linear-gradient(135deg,${C.emerald},${C.mint})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,fontSize:13}}>{t.av}</div>
+                  <div>
+                    <div style={{fontWeight:600,color:C.dark,fontSize:13}}>{t.name}</div>
+                    <div style={{color:C.mint,fontSize:12}}>{t.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* PLANOS / VALORES — por último, estilo Livance */}
+      <section id="planos" style={{padding:"80px 24px",background:C.cream}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:52}}>
+            <span style={{color:C.mint,fontWeight:600,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Flexibilidade total</span>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,40px)",fontWeight:700,color:C.dark,marginTop:8,marginBottom:14}}>Como você quer usar</h2>
+            <p style={{color:C.muted,fontSize:16,maxWidth:600,margin:"0 auto"}}>Do atendimento eventual ao uso recorrente. Escolha o modelo que combina com o ritmo da sua prática. O valor final depende da sala escolhida.</p>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(280px,1fr))",gap:24,alignItems:"stretch"}}>
+            {USE_MODES.map(m=>(
+              <div key={m.id} style={{background:m.id==="pacote"?C.forest:C.white,border:m.id==="pacote"?`2px solid ${C.gold}`:`2px solid ${C.border}`,borderRadius:20,padding:30,position:"relative",display:"flex",flexDirection:"column",boxShadow:m.id==="pacote"?"0 20px 60px rgba(11,61,40,0.28)":"0 4px 20px rgba(0,0,0,0.06)"}}>
+                {m.badge&&<div style={{position:"absolute",top:-14,left:"50%",transform:"translateX(-50%)",background:m.id==="pacote"?C.gold:C.emerald,color:"#fff",fontSize:12,fontWeight:700,padding:"4px 16px",borderRadius:100,whiteSpace:"nowrap"}}>{m.badge}</div>}
+                <div style={{fontSize:36,marginBottom:14}}>{m.icon}</div>
+                <h3 style={{fontFamily:F.display,fontSize:22,fontWeight:700,color:m.id==="pacote"?"#fff":C.dark,marginBottom:4}}>{m.name}</h3>
+                <p style={{color:m.id==="pacote"?"rgba(255,255,255,0.6)":C.muted,fontSize:13,marginBottom:16}}>{m.sub}</p>
+                <p style={{color:m.id==="pacote"?"rgba(255,255,255,0.82)":C.dark,fontSize:13.5,lineHeight:1.75,marginBottom:20,flex:1}}>{m.desc}</p>
+                {m.id==="pacote" && (
+                  <div style={{marginBottom:20}}>
+                    {PACKAGES.map(p=>(
+                      <div key={p.id} style={{display:"flex",justifyContent:"space-between",fontSize:12.5,color:"rgba(255,255,255,0.85)",padding:"6px 0",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
+                        <span>{p.label}</span><span style={{color:"#F5D78E",fontWeight:600}}>{p.sub}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {m.id==="periodo" && (
+                  <div style={{background:C.mintLight,borderRadius:10,padding:"10px 14px",fontSize:12.5,color:C.emerald,marginBottom:20,fontWeight:600}}>Até 30% mais barato que o avulso</div>
+                )}
+                {m.id==="avulso" && (
+                  <div style={{background:C.cream,borderRadius:10,padding:"10px 14px",fontSize:12.5,color:C.muted,marginBottom:20}}>A partir de <strong style={{color:C.dark}}>{money(Math.min(...ROOMS.map(r=>r.priceHora)))}/hora</strong></div>
+                )}
+                <button onClick={()=>{setUseMode(m); startBook();}}
+                  style={{width:"100%",background:m.id==="pacote"?C.gold:C.emerald,color:"#fff",border:"none",borderRadius:10,padding:14,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:F.body}}>
+                  Escolher {m.name}
+                </button>
+              </div>
+            ))}
+          </div>
+          {/* Add-on endereço fiscal */}
+          <div style={{marginTop:28,background:C.white,border:`2px dashed ${C.gold}`,borderRadius:18,padding:"24px 28px",display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:16}}>
+              <div style={{fontSize:34}}>📍</div>
+              <div>
+                <div style={{fontFamily:F.display,fontSize:18,fontWeight:700,color:C.dark}}>Adicional: Endereço fiscal</div>
+                <div style={{color:C.muted,fontSize:13.5,maxWidth:520,lineHeight:1.6}}>{FISCAL_ADDON.note}</div>
+              </div>
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontFamily:F.display,fontSize:24,fontWeight:700,color:C.gold}}>{money(FISCAL_ADDON.price)}<span style={{fontSize:13,color:C.muted}}>{FISCAL_ADDON.per}</span></div>
+              <div style={{fontSize:11,color:C.muted}}>contratação anual</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section id="faq" style={{padding:"80px 24px",background:C.white}}>
+        <div style={{maxWidth:780,margin:"0 auto"}}>
+          <div style={{textAlign:"center",marginBottom:52}}>
+            <span style={{color:C.mint,fontWeight:600,fontSize:12,letterSpacing:2,textTransform:"uppercase"}}>Dúvidas</span>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,40px)",fontWeight:700,color:C.dark,marginTop:8}}>Perguntas frequentes</h2>
+          </div>
+          {FAQ_DATA.map((item,i)=>(
+            <div key={i} style={{borderBottom:`1px solid ${C.border}`,padding:"18px 0"}}>
+              <button onClick={()=>setFaq(faq===i?null:i)} style={{width:"100%",display:"flex",justifyContent:"space-between",alignItems:"center",background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:0,fontFamily:F.body}}>
+                <span style={{fontWeight:600,color:C.dark,fontSize:15,paddingRight:16}}>{item.q}</span>
+                <span style={{color:C.mint,fontSize:18,flexShrink:0,transition:"transform 0.2s",transform:faq===i?"rotate(180deg)":"rotate(0)"}}>▼</span>
+              </button>
+              {faq===i&&<p style={{color:C.muted,fontSize:14,lineHeight:1.85,marginTop:12,paddingRight:32}}>{item.a}</p>}
+            </div>
+          ))}
+          <div style={{textAlign:"center",marginTop:44}}>
+            <p style={{color:C.muted,marginBottom:14,fontSize:15}}>Não encontrou o que procurava?</p>
+            <button onClick={()=>setChatOpen(true)} style={{background:C.emerald,color:"#fff",border:"none",borderRadius:12,padding:"13px 28px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>
+              Pergunte para a Vi 🤖
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA */}
+      <section style={{padding:"80px 24px",background:`linear-gradient(135deg,${C.gold},#E8A030)`,textAlign:"center"}}>
+        <div style={{maxWidth:700,margin:"0 auto"}}>
+          <h2 style={{fontFamily:F.display,fontSize:"clamp(26px,4vw,46px)",fontWeight:700,color:"#fff",marginBottom:18}}>Pronto para elevar sua prática?</h2>
+          <p style={{color:"rgba(255,255,255,0.9)",fontSize:17,marginBottom:40,lineHeight:1.75}}>Cadastre-se, valide seu registro e comece a atender em um espaço à altura dos seus pacientes.</p>
+          <div style={{display:"flex",gap:16,justifyContent:"center",flexWrap:"wrap"}}>
+            <button onClick={()=>startBook()} style={{background:C.forest,color:"#fff",border:"none",borderRadius:12,padding:"17px 40px",fontSize:16,fontWeight:700,cursor:"pointer",boxShadow:"0 8px 32px rgba(0,0,0,0.3)",fontFamily:F.body}}>
+              Começar cadastro →
+            </button>
+            <a href="https://wa.me/5515999999999" target="_blank" rel="noopener noreferrer"
+              style={{background:"#25D366",color:"#fff",border:"none",textDecoration:"none",borderRadius:12,padding:"17px 40px",fontSize:16,fontWeight:700,display:"inline-flex",alignItems:"center",gap:8}}>
+              📱 Falar no WhatsApp
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer style={{background:C.dark,color:"rgba(255,255,255,0.65)",padding:"56px 24px 28px"}}>
+        <div style={{maxWidth:1100,margin:"0 auto"}}>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:40,marginBottom:44}}>
+            <div>
+              <div style={{fontFamily:F.display,fontSize:22,fontWeight:700,color:"#fff",marginBottom:4}}>🌿 Vidah Prime</div>
+              <div style={{fontSize:10,letterSpacing:2,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",marginBottom:14}}>Espaço de Saúde</div>
+              <p style={{fontSize:13,lineHeight:1.85}}>Coworking premium para profissionais da saúde. Estrutura completa, cadastro validado e preços que cabem no orçamento.</p>
+              <div style={{display:"flex",gap:14,marginTop:20}}>
+                <a href="https://instagram.com/vidahprime" target="_blank" rel="noreferrer" style={{color:"#fff",fontSize:22,textDecoration:"none"}}>📸</a>
+                <a href="https://wa.me/5515999999999" target="_blank" rel="noreferrer" style={{color:"#25D366",fontSize:22,textDecoration:"none"}}>💬</a>
+              </div>
+            </div>
+            <div>
+              <h4 style={{color:"#fff",fontWeight:600,marginBottom:14,fontSize:14}}>Navegação</h4>
+              {["Salas","Como funciona","Planos","FAQ"].map(i=><div key={i} style={{marginBottom:8,fontSize:13,cursor:"pointer"}}>{i}</div>)}
+            </div>
+            <div>
+              <h4 style={{color:"#fff",fontWeight:600,marginBottom:14,fontSize:14}}>Salas</h4>
+              {["Sala Conecta","Sala Clínica","Sala Odontológica","Reuniões e Palestras"].map(i=><div key={i} style={{marginBottom:8,fontSize:13}}>{i}</div>)}
+            </div>
+            <div>
+              <h4 style={{color:"#fff",fontWeight:600,marginBottom:14,fontSize:14}}>Contato</h4>
+              <div style={{fontSize:13,marginBottom:8}}>📍 São Paulo/SP</div>
+              <div style={{fontSize:13,marginBottom:8}}>📞 (15) 99999-9999</div>
+              <div style={{fontSize:13,marginBottom:8}}>✉️ contato@vidahprime.com.br</div>
+              <div style={{fontSize:13}}>🕐 Seg-Sáb: 7h–21h</div>
+            </div>
+          </div>
+          <div style={{borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:28,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
+            <span style={{fontSize:12}}>© 2026 Vidah Prime · Protótipo de validação de fluxo</span>
+            <span style={{fontSize:12,display:"flex",gap:20}}>
+              <a href="#" style={{color:"rgba(255,255,255,0.5)",textDecoration:"none"}}>Termos de Uso</a>
+              <a href="#" style={{color:"rgba(255,255,255,0.5)",textDecoration:"none"}}>Privacidade</a>
+            </span>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+
+  // ════════════════════════════════════════════ ONBOARDING (cadastro obrigatório)
+  const OB_STEPS = ["Seus dados","Registro profissional","Documentos","Contrato","Análise"];
+  const Onboarding = () => (
+    <div style={{minHeight:"100vh",background:C.cream,paddingTop:64}}>
+      <div style={{background:C.white,padding:"20px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.06)",position:"sticky",top:64,zIndex:50}}>
+        <div style={{maxWidth:720,margin:"0 auto"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <div>
+              <div style={{fontSize:11,color:C.mint,fontWeight:700,letterSpacing:1,textTransform:"uppercase"}}>Cadastro único</div>
+              <h2 style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark}}>{OB_STEPS[Math.min(obStep,4)]}</h2>
+            </div>
+            <button onClick={()=>go("landing")} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:13,fontFamily:F.body}}>← Voltar ao site</button>
+          </div>
+          <div style={{display:"flex",gap:5}}>
+            {OB_STEPS.map((_,i)=><div key={i} style={{flex:1,height:4,borderRadius:4,background:i<=Math.min(obStep,4)?C.emerald:C.border,transition:"background 0.3s"}}/>)}
+          </div>
+        </div>
+      </div>
+
+      <div style={{maxWidth:720,margin:"0 auto",padding:"28px 20px 120px"}}>
+        {/* Aviso do porquê do cadastro */}
+        {obStep<4 && (
+          <div style={{background:C.mintLight,borderRadius:14,padding:"14px 18px",marginBottom:24,display:"flex",gap:12,alignItems:"flex-start"}}>
+            <span style={{fontSize:20}}>🛡️</span>
+            <div style={{fontSize:13,color:C.emerald,lineHeight:1.6}}>Precisamos conhecer você antes da primeira reserva. Validamos seu registro no conselho e você assina o contrato uma única vez. Depois é só reservar.</div>
+          </div>
+        )}
+
+        {/* STEP 0: dados pessoais */}
+        {obStep===0 && (
+          <div style={{background:C.white,borderRadius:20,padding:26,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:16}}>
+              {[{k:"name",l:"Nome completo",p:"Dr(a). João Silva"},{k:"email",l:"E-mail",p:"joao@email.com"},{k:"phone",l:"WhatsApp",p:"(15) 99999-9999"},{k:"cpf",l:"CPF",p:"000.000.000-00"}].map(({k,l,p})=>(
+                <div key={k}>
+                  <label style={{display:"block",fontSize:12,fontWeight:600,color:C.dark,marginBottom:6}}>{l}</label>
+                  <input value={obForm[k]} placeholder={p} onChange={e=>setObForm(f=>({...f,[k]:e.target.value}))}
+                    style={{width:"100%",padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body,boxSizing:"border-box"}}/>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 1: registro profissional */}
+        {obStep===1 && (
+          <div style={{background:C.white,borderRadius:20,padding:26,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+            <div style={{display:"grid",gridTemplateColumns:"120px 1fr",gap:16,marginBottom:16}}>
+              <div>
+                <label style={{display:"block",fontSize:12,fontWeight:600,color:C.dark,marginBottom:6}}>Conselho</label>
+                <select value={obForm.councilType} onChange={e=>setObForm(f=>({...f,councilType:e.target.value}))} style={{width:"100%",padding:"11px 10px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body,background:"#fff",boxSizing:"border-box"}}>
+                  {["CRP","CRM","CRO","CRN","CREFITO","CRFa","Outro"].map(o=><option key={o}>{o}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{display:"block",fontSize:12,fontWeight:600,color:C.dark,marginBottom:6}}>Número do registro</label>
+                <input value={obForm.council} placeholder="Ex.: 06/123456" onChange={e=>setObForm(f=>({...f,council:e.target.value}))}
+                  style={{width:"100%",padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body,boxSizing:"border-box"}}/>
+              </div>
+            </div>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.dark,marginBottom:6}}>Especialidade</label>
+            <input value={obForm.spec} placeholder="Ex.: Psicologia clínica" onChange={e=>setObForm(f=>({...f,spec:e.target.value}))}
+              style={{width:"100%",padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body,boxSizing:"border-box"}}/>
+            <div style={{marginTop:16,fontSize:12,color:C.muted,display:"flex",gap:8,alignItems:"center"}}>
+              <span>🔎</span> Vamos conferir esse registro no conselho antes de liberar seu acesso.
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: documentos */}
+        {obStep===2 && (
+          <div style={{background:C.white,borderRadius:20,padding:26,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+            <p style={{color:C.muted,fontSize:14,marginBottom:20}}>Envie os 3 documentos. Ficam guardados com segurança e são usados só para validação.</p>
+            {[{k:"carteira",l:"Carteirinha do conselho",d:"Frente e verso, legível"},{k:"endereco",l:"Comprovante de endereço",d:"Últimos 90 dias"},{k:"pessoal",l:"Documento pessoal",d:"RG ou CNH"}].map(({k,l,d})=>(
+              <div key={k} onClick={()=>setObForm(f=>({...f,docs:{...f.docs,[k]:!f.docs[k]}}))}
+                style={{display:"flex",alignItems:"center",gap:14,padding:"16px 18px",border:`2px solid ${obForm.docs[k]?C.emerald:C.border}`,borderRadius:14,marginBottom:12,cursor:"pointer",background:obForm.docs[k]?`${C.emerald}0D`:"#fff"}}>
+                <div style={{width:44,height:44,borderRadius:10,background:obForm.docs[k]?C.emerald:C.cream,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,color:"#fff"}}>{obForm.docs[k]?"✓":"📎"}</div>
+                <div style={{flex:1}}>
+                  <div style={{fontWeight:600,color:C.dark,fontSize:14}}>{l}</div>
+                  <div style={{color:C.muted,fontSize:12}}>{d}</div>
+                </div>
+                <span style={{fontSize:12,color:obForm.docs[k]?C.emerald:C.mint,fontWeight:600}}>{obForm.docs[k]?"Enviado":"Enviar"}</span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* STEP 3: contrato + aceite */}
+        {obStep===3 && (
+          <div style={{background:C.white,borderRadius:20,padding:26,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+            <h3 style={{fontFamily:F.display,fontSize:18,fontWeight:700,color:C.dark,marginBottom:6}}>Contrato e regulamento</h3>
+            <p style={{color:C.muted,fontSize:13.5,marginBottom:16}}>Assinado uma única vez. Vale para todas as suas reservas futuras.</p>
+            <div style={{border:`1px solid ${C.border}`,borderRadius:12,padding:18,height:220,overflowY:"auto",fontSize:12.5,lineHeight:1.8,color:C.dark,background:C.cream}}>
+              <p style={{fontWeight:700,marginBottom:10}}>CONTRATO DE LICENÇA DE USO DE ESPAÇO E TERMO DE RESPONSABILIDADE</p>
+              <p style={{marginBottom:8}}><strong>1. Objeto.</strong> Licença temporária e não exclusiva de uso das salas da Vidah Prime, destinadas a atendimentos na área da saúde.</p>
+              <p style={{marginBottom:8}}><strong>2. Responsabilidade sanitária.</strong> O CONTRATANTE se responsabiliza por manter regular sua situação junto ao conselho de classe e à vigilância sanitária para a sua especialidade, isentando a Vidah Prime de responsabilidade por atos profissionais.</p>
+              <p style={{marginBottom:8}}><strong>3. Responsabilidade civil.</strong> O CONTRATANTE responde civil e profissionalmente pelos serviços que presta a seus pacientes dentro do espaço.</p>
+              <p style={{marginBottom:8}}><strong>4. Regras de uso.</strong> Reservas com antecedência, respeito ao intervalo de higienização de 30 minutos e às regras de cancelamento (24h).</p>
+              <p style={{marginBottom:8}}><strong>5. Cancelamento.</strong> Cancelamentos com +24h devolvem a hora ao saldo. Com -24h, a hora é consumida.</p>
+              <p><strong>6. Foro.</strong> Comarca de São Paulo/SP.</p>
+            </div>
+            <label style={{display:"flex",gap:12,alignItems:"flex-start",marginTop:18,cursor:"pointer"}}>
+              <input type="checkbox" checked={obForm.accept} onChange={e=>setObForm(f=>({...f,accept:e.target.checked}))} style={{marginTop:3,width:18,height:18,accentColor:C.emerald}}/>
+              <span style={{fontSize:13,color:C.dark,lineHeight:1.6}}>Li e aceito o contrato e o regulamento. Assino digitalmente e reconheço a validade jurídica deste aceite (MP 2.200-2/2001 e Lei 14.063/2020).</span>
+            </label>
+          </div>
+        )}
+
+        {/* STEP 4: em análise */}
+        {obStep===4 && (
+          <div style={{background:C.white,borderRadius:20,padding:"40px 30px",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",textAlign:"center"}}>
+            <div style={{fontSize:60,marginBottom:16}}>⏳</div>
+            <h2 style={{fontFamily:F.display,fontSize:24,fontWeight:700,color:C.dark,marginBottom:10}}>Cadastro em análise</h2>
+            <p style={{color:C.muted,fontSize:15,lineHeight:1.7,maxWidth:440,margin:"0 auto 24px"}}>Recebemos seus dados e documentos. Nossa equipe vai validar seu registro <strong>{obForm.councilType} {obForm.council}</strong> no conselho. Você recebe um aviso por e-mail e WhatsApp assim que for aprovado.</p>
+            <div style={{background:C.mintLight,borderRadius:14,padding:18,maxWidth:440,margin:"0 auto 24px",textAlign:"left"}}>
+              {[["Dados enviados","✓"],["Documentos recebidos (3)","✓"],["Contrato assinado","✓"],["Validação no conselho","⏳"]].map(([l,s])=>(
+                <div key={l} style={{display:"flex",justifyContent:"space-between",fontSize:13,padding:"5px 0",color:C.emerald}}><span>{l}</span><span>{s}</span></div>
+              ))}
+            </div>
+            <p style={{fontSize:12,color:C.muted,marginBottom:16}}>Modo demonstração: simule a aprovação da equipe para seguir o fluxo.</p>
+            <button onClick={approveOwnAccount} style={{background:C.gold,color:"#fff",border:"none",borderRadius:12,padding:"13px 30px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:F.body}}>
+              ✅ Simular aprovação
+            </button>
+          </div>
+        )}
+
+        {/* STEP 5: aprovado */}
+        {obStep===5 && (
+          <div style={{background:C.white,borderRadius:20,padding:"40px 30px",boxShadow:"0 4px 20px rgba(0,0,0,0.06)",textAlign:"center"}}>
+            <div style={{fontSize:60,marginBottom:16}}>🎉</div>
+            <h2 style={{fontFamily:F.display,fontSize:26,fontWeight:700,color:C.dark,marginBottom:10}}>Cadastro aprovado!</h2>
+            <p style={{color:C.muted,fontSize:15,lineHeight:1.7,maxWidth:420,margin:"0 auto 28px"}}>Seu registro foi validado. Agora você já pode reservar salas e gerenciar tudo pela sua área do cliente.</p>
+            <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap"}}>
+              <button onClick={()=>go(pendingAction||"booking",0)} style={{background:C.emerald,color:"#fff",border:"none",borderRadius:12,padding:"13px 30px",fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:F.body}}>Reservar uma sala →</button>
+              <button onClick={()=>go("client")} style={{background:C.cream,color:C.dark,border:`2px solid ${C.border}`,borderRadius:12,padding:"13px 26px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>Ir para minha conta</button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Nav inferior do onboarding */}
+      {obStep<4 && (
+        <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",padding:"14px 20px",boxShadow:"0 -4px 20px rgba(0,0,0,0.08)",display:"flex",gap:10,zIndex:100}}>
+          <button onClick={()=>obStep>0?setObStep(s=>s-1):go("landing")} style={{flex:1,padding:14,border:`2px solid ${C.border}`,borderRadius:12,background:"#fff",color:C.dark,fontWeight:600,fontSize:14,cursor:"pointer",fontFamily:F.body}}>← Voltar</button>
+          <button onClick={()=>{if(!obCanNext())return; obStep===3?submitSignup():setObStep(s=>s+1);}} disabled={!obCanNext()}
+            style={{flex:2,padding:14,border:"none",borderRadius:12,background:obCanNext()?C.emerald:"#CCC",color:"#fff",fontWeight:700,fontSize:15,cursor:obCanNext()?"pointer":"not-allowed",fontFamily:F.body}}>
+            {obStep===3?"Assinar e enviar cadastro":"Continuar →"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  // ════════════════════════════════════════════ BOOKING (pós-cadastro)
+  const BK_STEPS = ["Escolha a sala","Modo de uso","Agendamento","Pagamento","Confirmação"];
+  const Booking = () => (
+    <div style={{minHeight:"100vh",background:C.cream,paddingTop:64}}>
+      <div style={{background:C.white,padding:"20px 24px",boxShadow:"0 2px 12px rgba(0,0,0,0.06)",position:"sticky",top:64,zIndex:50}}>
+        <div style={{maxWidth:840,margin:"0 auto"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <h2 style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark}}>{BK_STEPS[step]}</h2>
+            <div style={{display:"flex",gap:14,alignItems:"center"}}>
+              {hourBalance>0 && <span style={{background:C.goldLight,color:C.gold,fontSize:12,fontWeight:700,padding:"5px 12px",borderRadius:100}}>💳 Saldo: {hourBalance}h</span>}
+              <button onClick={()=>go("landing")} style={{background:"none",border:"none",color:C.muted,cursor:"pointer",fontSize:13,fontFamily:F.body}}>← Sair</button>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:5}}>
+            {BK_STEPS.map((_,i)=><div key={i} style={{flex:1,height:4,borderRadius:4,background:i<=step?C.emerald:C.border,transition:"background 0.3s"}}/>)}
+          </div>
+          <div style={{display:"flex",justifyContent:"space-between",marginTop:6}}>
+            {BK_STEPS.map((s,i)=><span key={i} style={{fontSize:9,color:i<=step?C.emerald:C.muted,fontWeight:i===step?700:400}}>{s}</span>)}
+          </div>
+        </div>
+      </div>
+
+      <div style={{maxWidth:840,margin:"0 auto",padding:"28px 20px 120px"}}>
+        {/* STEP 0: sala */}
+        {step===0 && (
+          <div>
+            <p style={{color:C.muted,marginBottom:24,fontSize:15}}>Selecione a sala que atende à sua especialidade:</p>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:18}}>
+              {ROOMS.filter(r=>r.available).map(r=>(
+                <div key={r.id} onClick={()=>setRoom(r)} style={{background:C.white,borderRadius:16,overflow:"hidden",border:`2px solid ${room?.id===r.id?C.emerald:"transparent"}`,cursor:"pointer",boxShadow:room?.id===r.id?"0 8px 32px rgba(26,122,92,0.2)":"0 4px 16px rgba(0,0,0,0.06)",transition:"all 0.2s"}}>
+                  <div style={{height:110,background:`linear-gradient(135deg,${r.accent}EE,${r.accent}88)`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:42,position:"relative"}}>
+                    {r.img}
+                    {room?.id===r.id&&<div style={{position:"absolute",top:10,right:10,width:26,height:26,background:C.emerald,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13}}>✓</div>}
+                  </div>
+                  <div style={{padding:"14px 16px"}}>
+                    <h3 style={{fontFamily:F.display,fontSize:15,fontWeight:600,color:C.dark,marginBottom:4}}>{r.name}</h3>
+                    <p style={{color:C.muted,fontSize:12,marginBottom:10,lineHeight:1.55}}>{r.desc}</p>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{color:C.emerald,fontWeight:700,fontSize:15}}>{money(r.priceHora)}<span style={{fontWeight:400,color:C.muted,fontSize:12}}>/h</span></span>
+                      <span style={{color:C.muted,fontSize:12}}>⭐ {r.rating}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 1: modo de uso */}
+        {step===1 && (
+          <div>
+            {room && <div style={{background:C.white,borderRadius:12,padding:"14px 18px",border:`1px solid ${C.border}`,marginBottom:24,display:"flex",alignItems:"center",gap:14}}>
+              <span style={{fontSize:28}}>{room.img}</span>
+              <div><div style={{fontWeight:600,color:C.dark,fontSize:15}}>{room.name}</div>
+              <div style={{color:C.muted,fontSize:13}}>{money(room.priceHora)}/h avulso</div></div>
+            </div>}
+            <p style={{color:C.muted,marginBottom:20,fontSize:15}}>Como você quer usar o espaço?</p>
+            <div style={{display:"grid",gap:14}}>
+              {USE_MODES.map(m=>(
+                <div key={m.id} onClick={()=>{setUseMode(m); if(m.id!=="pacote")setPkg(null);}} style={{background:useMode?.id===m.id?`${C.emerald}0D`:C.white,border:`2px solid ${useMode?.id===m.id?C.emerald:C.border}`,borderRadius:16,padding:"18px 22px",cursor:"pointer",transition:"all 0.2s"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:14}}>
+                    <div style={{fontSize:26}}>{m.icon}</div>
+                    <div style={{flex:1}}>
+                      <div style={{fontWeight:700,color:C.dark,fontSize:15}}>{m.name} {m.badge?<span style={{fontSize:11,color:C.gold}}>· {m.badge}</span>:""}</div>
+                      <div style={{color:C.muted,fontSize:13}}>{m.desc}</div>
+                    </div>
+                    <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${useMode?.id===m.id?C.emerald:C.border}`,background:useMode?.id===m.id?C.emerald:"transparent",display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:12,flexShrink:0}}>{useMode?.id===m.id?"✓":""}</div>
+                  </div>
+                  {/* Pacotes */}
+                  {m.id==="pacote" && useMode?.id==="pacote" && (
+                    <div style={{marginTop:16,display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
+                      {PACKAGES.map(p=>{
+                        const rate = room?room.priceHora*(1-p.off):0;
+                        return (
+                          <div key={p.id} onClick={e=>{e.stopPropagation();setPkg(p);}} style={{border:`2px solid ${pkg?.id===p.id?C.gold:C.border}`,borderRadius:12,padding:"12px 10px",textAlign:"center",cursor:"pointer",background:pkg?.id===p.id?C.goldLight:"#fff"}}>
+                            <div style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark}}>{p.hours}h</div>
+                            <div style={{fontSize:11,color:C.mint,fontWeight:600}}>{money(rate)}/h</div>
+                            <div style={{fontSize:10,color:C.muted,marginTop:2}}>-{Math.round(p.off*100)}%</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 2: agendamento */}
+        {step===2 && (
+          <div>
+            <div style={{background:C.warnLight,borderRadius:12,padding:"12px 16px",marginBottom:20,fontSize:13,color:"#B9772A",display:"flex",gap:8,alignItems:"center"}}>
+              ⏱️ Reserve com pelo menos 2 dias de antecedência. Após cada atendimento, 30 min são bloqueados para higienização.
+            </div>
+            <div style={{background:C.white,borderRadius:20,padding:24,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+                <button onClick={()=>{if(calM===0){setCalM(11);setCalY(y=>y-1);}else setCalM(m=>m-1);}} style={{background:C.cream,border:"none",borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:16}}>←</button>
+                <span style={{fontFamily:F.display,fontWeight:700,color:C.dark,fontSize:17}}>{MONTHS_FULL[calM]} {calY}</span>
+                <button onClick={()=>{if(calM===11){setCalM(0);setCalY(y=>y+1);}else setCalM(m=>m+1);}} style={{background:C.cream,border:"none",borderRadius:8,padding:"8px 14px",cursor:"pointer",fontSize:16}}>→</button>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3,marginBottom:6}}>
+                {DAYS_S.map((d,i)=><div key={i} style={{textAlign:"center",fontSize:11,fontWeight:600,color:C.muted,padding:"4px 0"}}>{d}</div>)}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:3}}>
+                {getDays(calM,calY).map((d,i)=>{
+                  const past=isPast(d), sel=isDSel(d), soon=isSoon(d);
+                  const disabled = !d||past||soon;
+                  return <button key={i} disabled={disabled} onClick={()=>togDate(d)} title={soon?"Antecedência mínima de 2 dias":""}
+                    style={{height:38,border:"none",borderRadius:8,cursor:disabled&&d?"not-allowed":(d?"pointer":"default"),background:sel?C.emerald:(disabled?"transparent":C.cream),color:sel?"#fff":(past||soon?"#CCC":(d?C.dark:"transparent")),fontWeight:sel?700:400,fontSize:13,fontFamily:F.body}}>{d}</button>;
+                })}
+              </div>
+              {dates.length>0&&<div style={{marginTop:14,color:C.emerald,fontSize:13,fontWeight:600}}>✓ {dates.length} dia{dates.length>1?"s":""} selecionado{dates.length>1?"s":""}</div>}
+            </div>
+            <div style={{background:C.white,borderRadius:20,padding:24,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontFamily:F.display,fontWeight:700,color:C.dark,marginBottom:18,fontSize:17}}>Horários disponíveis</h3>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(90px,1fr))",gap:8}}>
+                {TIMES.map(t=>{
+                  const busy=BUSY.includes(t), sel=times.includes(t);
+                  return <button key={t} disabled={busy} onClick={()=>!busy&&togTime(t)}
+                    style={{padding:"10px 6px",border:"none",borderRadius:10,background:busy?"#F5F5F5":(sel?C.emerald:C.cream),color:busy?"#CCC":(sel?"#fff":C.dark),fontWeight:sel?700:500,fontSize:13,cursor:busy?"not-allowed":"pointer",position:"relative",fontFamily:F.body}}>
+                    {t}
+                    {busy&&<div style={{position:"absolute",bottom:2,left:0,right:0,textAlign:"center",fontSize:8,color:"#AAA"}}>Ocupado</div>}
+                    {sel&&<div style={{position:"absolute",bottom:2,left:0,right:0,textAlign:"center",fontSize:8,color:"rgba(255,255,255,0.8)"}}>+30min limpeza</div>}
+                  </button>;
+                })}
+              </div>
+              {times.length>0&&<div style={{marginTop:14,color:C.emerald,fontSize:13,fontWeight:600}}>✓ {times.length} horário{times.length>1?"s":""} · {times.length*Math.max(dates.length,1)}h no total</div>}
+            </div>
+          </div>
+        )}
+
+        {/* STEP 3: pagamento */}
+        {step===3 && (
+          <div>
+            <div style={{background:C.white,borderRadius:20,padding:24,marginBottom:20,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontFamily:F.display,fontWeight:700,color:C.dark,marginBottom:18,fontSize:18}}>Resumo da reserva</h3>
+              {[["Sala",room?.name],["Modo",useMode?.name + (pkg?` (${pkg.hours}h)`:"")],["Datas",`${dates.length} dia${dates.length!==1?"s":""}`],["Horários",times.join(", ")||"—"],["Valor da hora",money(hourRate())]].map(([k,v])=>(
+                <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:14,marginBottom:10}}>
+                  <span style={{color:C.muted}}>{k}</span><span style={{fontWeight:600,color:C.dark}}>{v}</span>
+                </div>
+              ))}
+              {/* Add-on fiscal */}
+              <label style={{display:"flex",gap:10,alignItems:"center",padding:"12px 0",borderTop:`1px solid ${C.border}`,cursor:"pointer"}}>
+                <input type="checkbox" checked={fiscal} onChange={e=>setFiscal(e.target.checked)} style={{width:17,height:17,accentColor:C.gold}}/>
+                <span style={{fontSize:13,color:C.dark}}>Adicionar endereço fiscal <span style={{color:C.muted}}>(+{money(FISCAL_ADDON.price)}/mês, anual)</span></span>
+              </label>
+              <div style={{borderTop:`1px solid ${C.border}`,paddingTop:14,display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
+                <span style={{fontWeight:700,color:C.dark,fontSize:16}}>Total</span>
+                <span style={{fontFamily:F.display,fontSize:26,fontWeight:700,color:C.emerald}}>{money(bookingTotal())}</span>
+              </div>
+              {useMode?.id==="pacote"&&pkg&&<div style={{marginTop:8,fontSize:12,color:C.mint,textAlign:"right"}}>Após confirmar, {pkg.hours}h entram no seu saldo (válidas por 30 dias).</div>}
+            </div>
+
+            <div style={{background:C.white,borderRadius:20,padding:24,boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+              <h3 style={{fontFamily:F.display,fontWeight:700,color:C.dark,marginBottom:8,fontSize:18}}>Forma de pagamento</h3>
+              <p style={{fontSize:12,color:C.muted,marginBottom:16}}>Contrato já assinado no cadastro. Aqui você só confirma o pagamento.</p>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:22}}>
+                {[{id:"pix",l:"⚡ PIX",s:"5% off"},{id:"card",l:"💳 Cartão",s:"12x"},{id:"boleto",l:"🧾 Boleto",s:"3 dias"}].map(pm=>(
+                  <button key={pm.id} onClick={()=>setPay(pm.id)} style={{padding:14,border:`2px solid ${pay===pm.id?C.emerald:C.border}`,borderRadius:12,background:pay===pm.id?`${C.emerald}0D`:"#fff",cursor:"pointer",fontFamily:F.body}}>
+                    <div style={{fontWeight:700,color:C.dark,marginBottom:4,fontSize:14}}>{pm.l}</div>
+                    <div style={{fontSize:12,color:C.mint}}>{pm.s}</div>
+                  </button>
+                ))}
+              </div>
+              {pay==="pix" && (
+                <div style={{textAlign:"center",padding:24,background:C.cream,borderRadius:16}}>
+                  <div style={{fontSize:64,marginBottom:12}}>📱</div>
+                  <div style={{fontWeight:700,color:C.dark,marginBottom:8,fontSize:16}}>Pague via PIX</div>
+                  <div style={{color:C.muted,fontSize:13,marginBottom:16}}>Após confirmar, você recebe a chave e o QR Code por e-mail e WhatsApp.</div>
+                  <div style={{background:"#fff",borderRadius:10,padding:"10px 18px",display:"inline-block",fontFamily:"monospace",fontSize:13,color:C.dark,border:`1px solid ${C.border}`}}>contato@vidahprime.com.br</div>
+                </div>
+              )}
+              {pay==="card" && (
+                <div style={{display:"grid",gap:14}}>
+                  <input placeholder="Número do cartão" style={{padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body}}/>
+                  <input placeholder="Nome no cartão" style={{padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body}}/>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>
+                    <input placeholder="MM/AA" style={{padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body}}/>
+                    <input placeholder="CVV" style={{padding:"11px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body}}/>
+                    <select style={{padding:"11px 10px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,fontFamily:F.body,background:"#fff"}}>{["1x","2x","3x","6x","12x"].map(o=><option key={o}>{o}</option>)}</select>
+                  </div>
+                </div>
+              )}
+              {pay==="boleto" && (
+                <div style={{textAlign:"center",padding:24,background:C.cream,borderRadius:16,color:C.muted,fontSize:14}}>🧾 O boleto será gerado após a confirmação. Vencimento em 3 dias úteis.</div>
+              )}
+              <div style={{marginTop:18,padding:"11px 16px",background:C.mintLight,borderRadius:10,fontSize:12,color:C.emerald,display:"flex",alignItems:"center",gap:8}}>
+                🔒 Pagamento processado por gateway seguro (Asaas / Mercado Pago) · conta jurídica Inter
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* STEP 4: confirmação */}
+        {step===4 && lastBooking && (
+          <div>
+            <div style={{background:C.white,borderRadius:20,padding:32,boxShadow:"0 4px 20px rgba(0,0,0,0.06)",marginBottom:20,textAlign:"center"}}>
+              <div style={{fontSize:64,marginBottom:14}}>✅</div>
+              <h2 style={{fontFamily:F.display,fontSize:26,fontWeight:700,color:C.dark,marginBottom:8}}>Reserva confirmada!</h2>
+              <p style={{color:C.muted,fontSize:15,marginBottom:24}}>Comprovante enviado para <strong>{account?.email||"seu e-mail"}</strong>. Reserva <strong>#{lastBooking.id}</strong>.</p>
+              <div style={{background:C.cream,borderRadius:16,padding:22,textAlign:"left",maxWidth:440,margin:"0 auto"}}>
+                {[["Sala",lastBooking.room.name],["Modo",lastBooking.useMode.name],["Datas",`${lastBooking.dates.length} dia(s)`],["Horários",lastBooking.times.join(", ")],["Total",money(lastBooking.total)]].map(([k,v])=>(
+                  <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:14,padding:"6px 0"}}><span style={{color:C.muted}}>{k}</span><span style={{fontWeight:600,color:C.dark}}>{v}</span></div>
+                ))}
+              </div>
+              <div style={{display:"flex",gap:12,justifyContent:"center",flexWrap:"wrap",marginTop:24}}>
+                <button onClick={()=>go("client")} style={{background:C.emerald,color:"#fff",border:"none",borderRadius:12,padding:"13px 26px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>Ver na minha conta →</button>
+                <button onClick={()=>{setRoom(null);setUseMode(null);setPkg(null);setDates([]);setTimes([]);setFiscal(false);go("booking",0);}} style={{background:C.cream,color:C.dark,border:`2px solid ${C.border}`,borderRadius:12,padding:"13px 26px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>Nova reserva</button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {step<4 && (
+        <div style={{position:"fixed",bottom:0,left:0,right:0,background:"#fff",padding:"14px 20px",boxShadow:"0 -4px 20px rgba(0,0,0,0.08)",display:"flex",gap:10,zIndex:100}}>
+          <button onClick={()=>step>0?setStep(s=>s-1):go("landing")} style={{flex:1,padding:14,border:`2px solid ${C.border}`,borderRadius:12,background:"#fff",color:C.dark,fontWeight:600,fontSize:14,cursor:"pointer",fontFamily:F.body}}>← Voltar</button>
+          <button onClick={()=>{if(!bookCanNext())return; step===3?confirmBooking():setStep(s=>s+1);}} disabled={!bookCanNext()}
+            style={{flex:2,padding:14,border:"none",borderRadius:12,background:bookCanNext()?C.emerald:"#CCC",color:"#fff",fontWeight:700,fontSize:15,cursor:bookCanNext()?"pointer":"not-allowed",fontFamily:F.body,boxShadow:bookCanNext()?"0 4px 16px rgba(26,122,92,0.4)":"none"}}>
+            {step===3?"🔒 Confirmar pagamento":"Continuar →"}
+          </button>
+        </div>
+      )}
+    </div>
+  );
+
+  // ════════════════════════════════════════════ ÁREA DO CLIENTE
+  const Client = () => (
+    <div style={{minHeight:"100vh",background:C.cream,paddingTop:64}}>
+      <div style={{background:`linear-gradient(135deg,${C.forest},${C.emerald})`,color:"#fff",padding:"28px 22px"}}>
+        <div style={{maxWidth:1000,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:16}}>
+            <div style={{width:56,height:56,borderRadius:"50%",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:22,fontWeight:700}}>{(account?.name||"P").split(" ").map(n=>n[0]).slice(0,2).join("")}</div>
+            <div>
+              <div style={{fontFamily:F.display,fontSize:22,fontWeight:700}}>{account?.name||"Profissional"}</div>
+              <div style={{fontSize:13,opacity:0.8}}>{account?.councilType} {account?.council} · {account?.spec||"—"} · <span style={{color:"#8FE7C4"}}>✓ Validado</span></div>
+            </div>
+          </div>
+          <button onClick={()=>startBook()} style={{background:C.gold,color:"#fff",border:"none",borderRadius:10,padding:"12px 22px",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:F.body}}>+ Nova reserva</button>
+        </div>
+      </div>
+
+      <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 20px 80px"}}>
+        {/* Cards de resumo */}
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:14,marginBottom:24}}>
+          {[{l:"Saldo de horas",v:`${hourBalance}h`,s:"válidas por 30 dias",c:C.gold,e:"💳"},{l:"Reservas ativas",v:myBookings.length,s:"próximos atendimentos",c:C.emerald,e:"📅"},{l:"Endereço fiscal",v:myBookings.some(b=>b.fiscal)?"Ativo":"Inativo",s:"para CNPJ",c:C.info,e:"📍"},{l:"Contrato",v:"Assinado",s:"validade jurídica",c:C.mint,e:"📜"}].map(s=>(
+            <div key={s.l} style={{background:C.white,borderRadius:16,padding:"18px 16px",boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+              <div style={{fontSize:20,marginBottom:8}}>{s.e}</div>
+              <div style={{fontFamily:F.display,fontSize:24,fontWeight:700,color:s.c}}>{s.v}</div>
+              <div style={{fontSize:11.5,color:C.muted,marginTop:2}}>{s.s}</div>
+              <div style={{fontSize:10,color:C.border,marginTop:4,textTransform:"uppercase",fontWeight:600,letterSpacing:1}}>{s.l}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div style={{display:"flex",gap:4,marginBottom:22,background:"#fff",borderRadius:12,padding:4,width:"fit-content",boxShadow:"0 2px 8px rgba(0,0,0,0.06)",flexWrap:"wrap"}}>
+          {[["resumo","Minhas reservas"],["contrato","Contrato"],["fiscal","Endereço fiscal"],["dados","Meus dados"]].map(([t,l])=>(
+            <button key={t} onClick={()=>setClientTab(t)} style={{padding:"8px 18px",border:"none",borderRadius:8,background:clientTab===t?C.emerald:"transparent",color:clientTab===t?"#fff":C.muted,fontWeight:clientTab===t?700:500,cursor:"pointer",fontSize:13,fontFamily:F.body}}>{l}</button>
+          ))}
+        </div>
+
+        {clientTab==="resumo" && (
+          <div>
+            {myBookings.length===0 ? (
+              <div style={{background:C.white,borderRadius:18,padding:"48px 24px",textAlign:"center",boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:48,marginBottom:14}}>📅</div>
+                <h3 style={{fontFamily:F.display,fontSize:18,color:C.dark,marginBottom:8}}>Nenhuma reserva ainda</h3>
+                <p style={{color:C.muted,fontSize:14,marginBottom:20}}>Faça sua primeira reserva e ela aparece aqui.</p>
+                <button onClick={()=>startBook()} style={{background:C.emerald,color:"#fff",border:"none",borderRadius:10,padding:"12px 24px",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:F.body}}>Reservar agora →</button>
+              </div>
+            ) : myBookings.map((b)=>(
+              <div key={b.id} style={{background:C.white,borderRadius:16,padding:"18px 22px",display:"flex",alignItems:"center",gap:18,boxShadow:"0 4px 16px rgba(0,0,0,0.06)",marginBottom:12,borderLeft:`4px solid ${C.emerald}`,flexWrap:"wrap"}}>
+                <span style={{fontSize:30}}>{b.room.img}</span>
+                <div style={{flex:1,minWidth:180}}>
+                  <div style={{fontWeight:700,color:C.dark,fontSize:15}}>{b.room.name}</div>
+                  <div style={{color:C.muted,fontSize:12.5}}>{b.useMode.name} · {b.dates.length} dia(s) · {b.times.join(", ")}</div>
+                  <div style={{color:C.muted,fontSize:11.5,marginTop:2}}>Reserva #{b.id} · {money(b.total)}</div>
+                </div>
+                <div style={{display:"flex",gap:8}}>
+                  <button style={{background:C.cream,border:`1px solid ${C.border}`,borderRadius:8,padding:"7px 12px",fontSize:12,cursor:"pointer",color:C.dark,fontFamily:F.body}}>Comprovante</button>
+                  <button onClick={()=>{ if(confirm("Cancelar com menos de 24h consome a hora. Deseja cancelar?")) setMyBookings(p=>p.filter(x=>x.id!==b.id)); }} style={{background:"#FFF5F5",border:`1px solid #F3C6C6`,borderRadius:8,padding:"7px 12px",fontSize:12,cursor:"pointer",color:C.error,fontFamily:F.body}}>Cancelar</button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {clientTab==="contrato" && (
+          <div style={{background:C.white,borderRadius:18,padding:28,boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16,flexWrap:"wrap",gap:12}}>
+              <div>
+                <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:700,color:C.dark}}>Contrato de licença de uso</h3>
+                <div style={{fontSize:12.5,color:C.muted}}>Assinado no cadastro · validade jurídica</div>
+              </div>
+              <span style={{background:C.mintLight,color:C.emerald,padding:"6px 14px",borderRadius:100,fontSize:12,fontWeight:700}}>✓ Assinado</span>
+            </div>
+            <div style={{border:`1px solid ${C.border}`,borderRadius:12,padding:20,fontSize:12.5,lineHeight:1.9,color:C.dark,background:C.cream}}>
+              <p style={{marginBottom:8}}><strong>Contratante:</strong> {account?.name} · CPF {account?.cpf} · {account?.councilType} {account?.council}</p>
+              <p style={{marginBottom:8}}><strong>Contratada:</strong> Vidah Prime Coworking Ltda. · São Paulo/SP</p>
+              <p style={{marginBottom:8}}>Licença não exclusiva de uso das salas para atendimentos na área da saúde, com responsabilidade sanitária e civil do contratante, respeito ao intervalo de higienização e às regras de cancelamento.</p>
+              <p style={{fontSize:11,color:C.muted,marginTop:14,borderTop:`1px solid ${C.border}`,paddingTop:10}}>Assinado digitalmente · Hash: {account?.id}9F3A2C · MP 2.200-2/2001 e Lei 14.063/2020</p>
+            </div>
+            <button onClick={()=>window.print()} style={{marginTop:16,background:C.emerald,color:"#fff",border:"none",borderRadius:10,padding:"11px 22px",fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>🖨️ Baixar PDF</button>
+          </div>
+        )}
+
+        {clientTab==="fiscal" && (
+          <div style={{background:C.white,borderRadius:18,padding:28,boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+            <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:700,color:C.dark,marginBottom:6}}>Endereço fiscal</h3>
+            <p style={{color:C.muted,fontSize:13.5,lineHeight:1.7,marginBottom:20}}>{FISCAL_ADDON.note}</p>
+            {myBookings.some(b=>b.fiscal) ? (
+              <div>
+                <div style={{background:C.mintLight,borderRadius:12,padding:16,marginBottom:16,color:C.emerald,fontSize:13.5,fontWeight:600}}>✓ Endereço fiscal ativo · Rua Exemplo, 123 – São Paulo/SP</div>
+                <div style={{fontSize:12.5,color:C.muted,marginBottom:8,fontWeight:600}}>Documentos de apoio (para abrir CNPJ):</div>
+                {["Comprovante de endereço da Vidah Prime","IPTU do imóvel","Contrato de licença"].map(d=>(
+                  <div key={d} style={{display:"flex",justifyContent:"space-between",padding:"10px 0",borderBottom:`1px solid ${C.border}`,fontSize:13}}>
+                    <span style={{color:C.dark}}>📄 {d}</span><span style={{color:C.mint,cursor:"pointer",fontWeight:600}}>Baixar</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div style={{background:C.goldLight,borderRadius:12,padding:20,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
+                <div style={{fontSize:13.5,color:"#8A6420"}}>Você ainda não contratou o endereço fiscal.</div>
+                <button style={{background:C.gold,color:"#fff",border:"none",borderRadius:10,padding:"11px 22px",fontWeight:700,fontSize:14,cursor:"pointer",fontFamily:F.body}}>Contratar por {money(FISCAL_ADDON.price)}/mês</button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {clientTab==="dados" && (
+          <div style={{background:C.white,borderRadius:18,padding:28,boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+            <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:700,color:C.dark,marginBottom:18}}>Meus dados</h3>
+            {[["Nome",account?.name],["E-mail",account?.email],["WhatsApp",account?.phone],["CPF",account?.cpf],["Registro",`${account?.councilType} ${account?.council}`],["Especialidade",account?.spec]].map(([k,v])=>(
+              <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${C.border}`,fontSize:14}}><span style={{color:C.muted}}>{k}</span><span style={{fontWeight:600,color:C.dark}}>{v||"—"}</span></div>
+            ))}
+            <button onClick={()=>{setAccount(null);go("landing");}} style={{marginTop:20,background:"none",border:`2px solid ${C.border}`,borderRadius:10,padding:"11px 22px",fontSize:14,fontWeight:600,cursor:"pointer",color:C.muted,fontFamily:F.body}}>Sair da conta</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  // ════════════════════════════════════════════ PAINEL ADMINISTRATIVO
+  const Admin = () => {
+    if(!adminLogged) return (
+      <div style={{minHeight:"100vh",background:`linear-gradient(135deg,${C.forest},${C.emerald})`,display:"flex",alignItems:"center",justifyContent:"center",padding:24,paddingTop:88}}>
+        <div style={{background:"#fff",borderRadius:24,padding:40,maxWidth:380,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,0.25)",textAlign:"center"}}>
+          <div style={{fontSize:52,marginBottom:16}}>🔑</div>
+          <h2 style={{fontFamily:F.display,fontSize:24,fontWeight:700,color:C.dark,marginBottom:8}}>Painel administrativo</h2>
+          <p style={{color:C.muted,fontSize:14,marginBottom:28}}>Vidah Prime · Acesso da equipe (Raquel / Fernando)</p>
+          <div style={{marginBottom:16,textAlign:"left"}}>
+            <label style={{fontSize:12,fontWeight:600,color:C.dark,display:"block",marginBottom:6}}>E-mail</label>
+            <input defaultValue="admin@vidahprime.com.br" style={{width:"100%",padding:"12px 14px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:14,boxSizing:"border-box",fontFamily:F.body}}/>
+          </div>
+          <div style={{marginBottom:24,textAlign:"left"}}>
+            <label style={{fontSize:12,fontWeight:600,color:C.dark,display:"block",marginBottom:6}}>Senha</label>
+            <input type="password" placeholder="••••••••" style={{width:"100%",padding:"12px 14px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:14,boxSizing:"border-box",fontFamily:F.body}}/>
+          </div>
+          <button onClick={()=>setAdminLogged(true)} style={{width:"100%",background:C.emerald,color:"#fff",border:"none",borderRadius:12,padding:"14px",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:F.body,marginBottom:12}}>Entrar no painel</button>
+          <button onClick={()=>go("landing")} style={{width:"100%",background:"none",border:"none",color:C.muted,fontSize:12,cursor:"pointer",fontFamily:F.body}}>← Voltar ao site</button>
+        </div>
+      </div>
+    );
+
+    return (
+      <div style={{minHeight:"100vh",background:C.cream,paddingTop:64}}>
+        <div style={{background:C.forest,color:"#fff",padding:"14px 22px",display:"flex",justifyContent:"space-between",alignItems:"center",position:"sticky",top:64,zIndex:50}}>
+          <div>
+            <div style={{fontFamily:F.display,fontSize:18,fontWeight:700}}>🌿 Vidah Prime · Admin</div>
+            <div style={{fontSize:12,opacity:0.7}}>{new Date().toLocaleDateString("pt-BR",{weekday:"long",day:"numeric",month:"long"})}</div>
+          </div>
+          <button onClick={()=>{setAdminLogged(false);go("landing");}} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",borderRadius:8,padding:"7px 14px",cursor:"pointer",fontSize:12,fontFamily:F.body}}>Sair</button>
+        </div>
+
+        <div style={{maxWidth:1200,margin:"0 auto",padding:"22px 20px"}}>
+          {/* Stats */}
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:14,marginBottom:24}}>
+            {[{l:"Aprovações pendentes",v:signups.length,c:C.warn,e:"📋"},{l:"Agendamentos hoje",v:TODAY_SCHEDULE.filter(s=>s.status!=="cleaning").length,c:C.emerald,e:"📅"},{l:"Em atendimento",v:TODAY_SCHEDULE.filter(x=>x.status==="in_progress").length,c:"#F6AD55",e:"⚡"},{l:"Faturamento mês",v:"R$ 18,4k",c:C.gold,e:"💰"}].map(s=>(
+              <div key={s.l} style={{background:C.white,borderRadius:16,padding:"18px 16px",boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:20,marginBottom:8}}>{s.e}</div>
+                <div style={{fontFamily:F.display,fontSize:26,fontWeight:700,color:s.c}}>{s.v}</div>
+                <div style={{fontSize:11,color:C.muted,marginTop:4,textTransform:"uppercase",fontWeight:600,letterSpacing:1}}>{s.l}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Tabs */}
+          <div style={{display:"flex",gap:4,marginBottom:22,background:"#fff",borderRadius:12,padding:4,width:"fit-content",boxShadow:"0 2px 8px rgba(0,0,0,0.06)",flexWrap:"wrap"}}>
+            {[["aprovacoes","Aprovações"],["agenda","Agenda"],["salas","Salas"],["horarios","Abrir / fechar"]].map(([t,l])=>(
+              <button key={t} onClick={()=>setAdminTab(t)} style={{padding:"8px 18px",border:"none",borderRadius:8,background:adminTab===t?C.emerald:"transparent",color:adminTab===t?"#fff":C.muted,fontWeight:adminTab===t?700:500,cursor:"pointer",fontSize:13,fontFamily:F.body}}>
+                {l}{t==="aprovacoes"&&signups.length>0?` (${signups.length})`:""}
+              </button>
+            ))}
+          </div>
+
+          {/* APROVAÇÕES — validação no conselho */}
+          {adminTab==="aprovacoes" && (
+            <div>
+              <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark,marginBottom:6}}>Cadastros aguardando validação</h3>
+              <p style={{color:C.muted,fontSize:13.5,marginBottom:18}}>Confira o registro no conselho antes de aprovar. Clique em "Validar no conselho" para abrir o site oficial.</p>
+              {signups.length===0 ? (
+                <div style={{background:C.white,borderRadius:16,padding:40,textAlign:"center",color:C.muted,boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>✓ Nenhuma aprovação pendente.</div>
+              ) : signups.map(s=>(
+                <div key={s.id} style={{background:C.white,borderRadius:16,padding:"18px 22px",boxShadow:"0 4px 16px rgba(0,0,0,0.06)",marginBottom:12,borderLeft:`4px solid ${C.warn}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap",gap:14}}>
+                    <div style={{flex:1,minWidth:200}}>
+                      <div style={{fontWeight:700,color:C.dark,fontSize:15}}>{s.name}</div>
+                      <div style={{color:C.muted,fontSize:13}}>{s.spec} · <strong>{s.council}</strong></div>
+                      <div style={{fontSize:11.5,color:C.muted,marginTop:4}}>{s.date} · {s.docs}/3 documentos enviados</div>
+                    </div>
+                    <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                      <button style={{background:C.info,color:"#fff",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12.5,cursor:"pointer",fontFamily:F.body,fontWeight:600}}>🔎 Validar no conselho</button>
+                      <button style={{background:C.cream,border:`1px solid ${C.border}`,borderRadius:8,padding:"8px 12px",fontSize:12.5,cursor:"pointer",color:C.dark,fontFamily:F.body}}>Ver docs</button>
+                      <button onClick={()=>setSignups(p=>p.filter(x=>x.id!==s.id))} style={{background:C.emerald,color:"#fff",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12.5,cursor:"pointer",fontFamily:F.body,fontWeight:600}}>✓ Aprovar</button>
+                      <button onClick={()=>setSignups(p=>p.filter(x=>x.id!==s.id))} style={{background:"#FFF5F5",border:`1px solid #F3C6C6`,borderRadius:8,padding:"8px 12px",fontSize:12.5,cursor:"pointer",color:C.error,fontFamily:F.body}}>Recusar</button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* AGENDA */}
+          {adminTab==="agenda" && (
+            <div>
+              <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark,marginBottom:18}}>Agenda de hoje</h3>
+              {TODAY_SCHEDULE.map((item,i)=>(
+                <div key={i} style={{background:item.status==="cleaning"?C.cream:C.white,borderRadius:16,padding:"16px 22px",display:"flex",alignItems:"center",gap:18,boxShadow:"0 4px 16px rgba(0,0,0,0.06)",marginBottom:10,borderLeft:`4px solid ${item.status==="in_progress"?C.warn:item.status==="cleaning"?C.mint:item.status==="confirmed"?C.emerald:C.border}`}}>
+                  <div style={{textAlign:"center",minWidth:56}}>
+                    <div style={{fontFamily:F.display,fontWeight:700,color:C.dark,fontSize:16}}>{item.time}</div>
+                    <div style={{color:C.muted,fontSize:11}}>até {item.end}</div>
+                  </div>
+                  <div style={{flex:1}}>
+                    <div style={{fontWeight:700,color:item.status==="cleaning"?C.mint:C.dark,fontSize:14}}>{item.prof}</div>
+                    <div style={{color:C.muted,fontSize:12}}>{item.spec} · {ROOMS.find(r=>r.id===item.room)?.name}</div>
+                  </div>
+                  <div style={{padding:"5px 13px",borderRadius:100,fontSize:11,fontWeight:700,background:item.status==="in_progress"?C.warnLight:item.status==="cleaning"?C.mintLight:item.status==="confirmed"?C.mintLight:"#F5F5F5",color:item.status==="in_progress"?"#B9772A":item.status==="cleaning"?C.mint:item.status==="confirmed"?C.emerald:C.muted}}>
+                    {item.status==="in_progress"?"⚡ Em andamento":item.status==="cleaning"?"🧹 Limpeza":item.status==="confirmed"?"✓ Confirmado":"⏳ Pendente"}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* SALAS */}
+          {adminTab==="salas" && (
+            <div>
+              <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark,marginBottom:18}}>Status das salas agora</h3>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:16}}>
+                {ROOMS.map(r=>{
+                  const busy=TODAY_SCHEDULE.find(s=>s.room===r.id&&s.status==="in_progress");
+                  const next=TODAY_SCHEDULE.find(s=>s.room===r.id&&s.status==="confirmed");
+                  const occ=!!busy||!r.available;
+                  return (
+                    <div key={r.id} style={{background:C.white,borderRadius:16,padding:20,boxShadow:"0 4px 16px rgba(0,0,0,0.06)",borderTop:`4px solid ${occ?C.error:C.emerald}`}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12}}>
+                        <div><span style={{fontSize:24}}>{r.img}</span><h3 style={{fontFamily:F.display,fontSize:14,fontWeight:700,color:C.dark,marginTop:6}}>{r.name}</h3></div>
+                        <span style={{padding:"4px 12px",borderRadius:100,fontSize:11,fontWeight:700,background:occ?"#FFF5F5":C.mintLight,color:occ?C.error:C.emerald}}>{occ?"🔴 Ocupada":"🟢 Livre"}</span>
+                      </div>
+                      {busy&&<div style={{fontSize:12,color:C.muted,borderTop:`1px solid ${C.border}`,paddingTop:10}}><strong>Agora:</strong> {busy.prof} · até {busy.end}</div>}
+                      {!occ&&next&&<div style={{fontSize:12,color:C.muted,borderTop:`1px solid ${C.border}`,paddingTop:10}}><strong>Próximo:</strong> {next.prof} · {next.time}</div>}
+                      {!occ&&!next&&<div style={{fontSize:12,color:C.mint,borderTop:`1px solid ${C.border}`,paddingTop:10}}>✓ Livre pelo restante do dia</div>}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* ABRIR / FECHAR HORÁRIOS manualmente (senha admin) */}
+          {adminTab==="horarios" && (
+            <div>
+              <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:700,color:C.dark,marginBottom:6}}>Abrir e fechar horários</h3>
+              <p style={{color:C.muted,fontSize:13.5,marginBottom:18}}>Bloqueie ou libere um horário manualmente. Útil quando alguém chega na recepção ou uma sala precisa ficar reservada.</p>
+              <div style={{background:C.white,borderRadius:16,padding:24,boxShadow:"0 4px 16px rgba(0,0,0,0.06)"}}>
+                <div style={{fontSize:13,fontWeight:600,color:C.dark,marginBottom:12}}>Sala Clínica 3 · hoje</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(90px,1fr))",gap:8}}>
+                  {TIMES.map(t=>{
+                    const blocked = blockedSlots.includes(t) || BUSY.includes(t);
+                    return (
+                      <button key={t} onClick={()=>setBlockedSlots(p=>p.includes(t)?p.filter(x=>x!==t):[...p,t])}
+                        style={{padding:"12px 6px",border:"none",borderRadius:10,background:blocked?"#FFF5F5":C.mintLight,color:blocked?C.error:C.emerald,fontWeight:600,fontSize:13,cursor:"pointer",fontFamily:F.body}}>
+                        {t}<div style={{fontSize:9,marginTop:2,opacity:0.8}}>{blocked?"🔒 Fechado":"🟢 Aberto"}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{marginTop:16,fontSize:12,color:C.muted}}>Clique para alternar. Horários fechados não aparecem para os clientes reservarem.</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  // ════════════════════════════════════════════ CHAT VI
+  const Chat = () => (
+    <>
+      {!chatOpen && (
+        <button onClick={()=>setChatOpen(true)} style={{position:"fixed",bottom:24,right:24,zIndex:1000,width:58,height:58,borderRadius:"50%",background:`linear-gradient(135deg,${C.forest},${C.emerald})`,border:"none",cursor:"pointer",fontSize:26,boxShadow:"0 8px 32px rgba(26,122,92,0.45)",display:"flex",alignItems:"center",justifyContent:"center"}} title="Falar com a Vi">🤖</button>
+      )}
+      {chatOpen && (
+        <div style={{position:"fixed",bottom:chatFull?0:20,right:chatFull?0:20,zIndex:1000,width:chatFull?"100vw":360,height:chatFull?"100dvh":540,background:"#fff",borderRadius:chatFull?0:20,display:"flex",flexDirection:"column",boxShadow:"0 20px 60px rgba(0,0,0,0.22)",overflow:"hidden",transition:"all 0.3s"}}>
+          <div style={{background:`linear-gradient(135deg,${C.forest},${C.emerald})`,padding:"14px 18px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
+            <div style={{width:38,height:38,borderRadius:"50%",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🤖</div>
+            <div style={{flex:1}}>
+              <div style={{color:"#fff",fontWeight:700,fontSize:14}}>Vi — Assistente Vidah Prime</div>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{width:7,height:7,background:C.mint,borderRadius:"50%"}}/>
+                <span style={{color:"rgba(255,255,255,0.72)",fontSize:11}}>Online · Tira dúvidas e conecta com a equipe</span>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:6}}>
+              <button onClick={()=>setChatFull(f=>!f)} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",borderRadius:6,padding:"4px 8px",cursor:"pointer",fontSize:12}}>{chatFull?"⊡":"⊞"}</button>
+              <button onClick={()=>{setChatOpen(false);setChatFull(false);}} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",borderRadius:6,padding:"4px 8px",cursor:"pointer",fontSize:14}}>✕</button>
+            </div>
+          </div>
+          <div style={{flex:1,overflowY:"auto",padding:14,display:"flex",flexDirection:"column",gap:10}}>
+            {msgs.map((m,i)=>(
+              <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
+                <div style={{width:30,height:30,borderRadius:"50%",flexShrink:0,background:m.role==="user"?C.gold:`linear-gradient(135deg,${C.forest},${C.emerald})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14}}>{m.role==="user"?"👤":"🤖"}</div>
+                <div style={{maxWidth:"78%",padding:"10px 14px",borderRadius:m.role==="user"?"18px 4px 18px 18px":"4px 18px 18px 18px",background:m.role==="user"?C.forest:C.cream,color:m.role==="user"?"#fff":C.dark,fontSize:13,lineHeight:1.65,whiteSpace:"pre-wrap"}}>{m.content}</div>
+              </div>
+            ))}
+            <div ref={chatEnd}/>
+          </div>
+          {msgs.length===1 && leadStage===0 && (
+            <div style={{padding:"8px 14px",display:"flex",gap:6,flexWrap:"wrap",borderTop:`1px solid ${C.border}`,flexShrink:0}}>
+              {["Ver salas","Quais os planos?","Como me cadastro?","Falar com a equipe"].map(q=>(
+                <button key={q} onClick={()=>sendChat(q)} style={{background:C.mintLight,color:C.emerald,border:"none",borderRadius:100,padding:"5px 11px",fontSize:11,fontWeight:600,cursor:"pointer",fontFamily:F.body}}>{q}</button>
+              ))}
+            </div>
+          )}
+          {leadStage===4 && (
+            <div style={{padding:"8px 14px",borderTop:`1px solid ${C.border}`,flexShrink:0}}>
+              <button onClick={()=>{setChatOpen(false);requireAccount("booking");}} style={{width:"100%",background:C.gold,color:"#fff",border:"none",borderRadius:10,padding:10,fontSize:13,fontWeight:700,cursor:"pointer",fontFamily:F.body}}>Adiantar meu cadastro →</button>
+            </div>
+          )}
+          <div style={{padding:"10px 14px",borderTop:`1px solid ${C.border}`,display:"flex",gap:8,flexShrink:0}}>
+            <input value={chatIn} onChange={e=>setChatIn(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&sendChat()}
+              placeholder="Digite sua dúvida..." style={{flex:1,padding:"9px 13px",border:`2px solid ${C.border}`,borderRadius:10,fontSize:13,outline:"none",fontFamily:F.body}}/>
+            <button onClick={()=>sendChat()} disabled={!chatIn.trim()} style={{background:chatIn.trim()?C.emerald:"#CCC",border:"none",borderRadius:10,padding:"9px 13px",color:"#fff",cursor:chatIn.trim()?"pointer":"not-allowed",fontSize:16}}>➤</button>
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  // ════════════════════════════════════════════ RENDER
+  return (
+    <div style={{fontFamily:F.body,background:C.cream,minHeight:"100vh"}}>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{-webkit-font-smoothing:antialiased;}
+        a{cursor:pointer;}
+        @media(max-width:768px){.nav-links{display:none!important;}.hamburger{display:block!important;}}
+        @media(min-width:769px){.hamburger{display:none!important;}}
+        @media print{body *{visibility:hidden;}#contract-print,#contract-print *{visibility:visible;}}
+        input:focus,select:focus,textarea:focus{border-color:#1A7A5C!important;outline:none;}
+        ::-webkit-scrollbar{width:6px;height:6px;}
+        ::-webkit-scrollbar-thumb{background:#2DB88A;border-radius:4px;}
+      `}</style>
+      <Navbar/>
+      {view==="landing" && <Landing/>}
+      {view==="onboarding" && <Onboarding/>}
+      {view==="booking" && <Booking/>}
+      {view==="client" && <Client/>}
+      {view==="admin" && <Admin/>}
+      <Chat/>
+      {!chatOpen && (
+        <a href="https://wa.me/5515999999999" target="_blank" rel="noopener noreferrer"
+          style={{position:"fixed",bottom:94,right:24,zIndex:999,width:50,height:50,borderRadius:"50%",background:"#25D366",cursor:"pointer",fontSize:24,boxShadow:"0 6px 20px rgba(37,211,102,0.45)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}>💬</a>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<VidahPrime />);
+</script>
+</body>
+</html>
