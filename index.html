@@ -190,7 +190,7 @@ const HOW = [
   { n:"01", icon:"userCheck", t:"Cadastre-se e valide", d:"Envie seus documentos e o registro do conselho. Nós validamos e você assina o contrato uma vez." },
   { n:"02", icon:"building", t:"Escolha a sala", d:"Conecta, Clínica, Odontológica ou Reuniões. Cada uma equipada para a sua especialidade." },
   { n:"03", icon:"calCheck", t:"Reserve data e hora", d:"Veja a disponibilidade em tempo real. Avulso, pacote de horas ou período fixo." },
-  { n:"04", icon:"card", t:"Pague e atenda", d:"PIX, cartão ou boleto. Confirmação na hora e comprovante na sua área do cliente." },
+  { n:"04", icon:"card", t:"Pague e atenda", d:"PIX ou cartão. Confirmação na hora e comprovante na sua área do cliente." },
 ];
 const DIFERENCIAIS = [
   { icon:"shield", t:"Cadastro validado", d:"Todo profissional passa por validação no conselho de classe. Ambiente seguro e sério." },
@@ -198,7 +198,7 @@ const DIFERENCIAIS = [
   { icon:"doc", t:"Contrato digital", d:"Assinado uma vez, com validade jurídica. Protege você e mantém tudo em conformidade." },
   { icon:"pin", t:"Endereço fiscal", d:"Adicional para usar o endereço no seu CNPJ e registros profissionais." },
   { icon:"chat", t:"Assistente Vi", d:"Tira dúvidas, ajuda a agendar e conecta com a equipe a qualquer hora." },
-  { icon:"card", t:"Pagamento flexível", d:"PIX, cartão em até 12x ou boleto. Saldo de horas e histórico sempre à mão." },
+  { icon:"card", t:"Pagamento flexível", d:"PIX ou cartão em até 12x. Saldo de horas e histórico sempre à mão." },
 ];
 const TODAY_SCHEDULE = [
   { time:"08:00", end:"09:00", prof:"Dra. Amanda Ferreira", spec:"Psicóloga", room:1, status:"confirmed" },
@@ -1014,8 +1014,8 @@ function VidahPrime() {
             <div style={{background:C.white,borderRadius:20,padding:24,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
               <h3 style={{fontFamily:F.display,fontWeight:600,color:C.ink,marginBottom:6,fontSize:18}}>Forma de pagamento</h3>
               <p style={{fontSize:12.5,color:C.slate,marginBottom:16}}>Contrato já assinado no cadastro. Aqui você só confirma o pagamento.</p>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:22}}>
-                {[{id:"pix",l:"PIX",s:"5% off",ic:"zap"},{id:"card",l:"Cartão",s:"até 12x",ic:"card"},{id:"boleto",l:"Boleto",s:"3 dias",ic:"receipt"}].map(pm=>(
+              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:10,marginBottom:22}}>
+                {[{id:"pix",l:"PIX",s:"5% off",ic:"zap"},{id:"card",l:"Cartão",s:"até 12x",ic:"card"}].map(pm=>(
                   <button key={pm.id} onClick={()=>setPay(pm.id)} style={{padding:16,border:`2px solid ${pay===pm.id?C.teal:C.line}`,borderRadius:14,background:pay===pm.id?C.tealSoft:"#fff",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:6}}>
                     <Ic n={pm.ic} s={22} c={pay===pm.id?C.tealDeep:C.slate}/>
                     <div style={{fontWeight:700,color:C.ink,fontSize:14}}>{pm.l}</div>
@@ -1042,10 +1042,7 @@ function VidahPrime() {
                   </div>
                 </div>
               )}
-              {pay==="boleto" && (
-                <div style={{textAlign:"center",padding:26,background:C.bg,borderRadius:16,color:C.slate,fontSize:14,border:`1px solid ${C.line}`,display:"flex",flexDirection:"column",alignItems:"center",gap:10}}><Ic n="receipt" s={28} c={C.slate}/> O boleto será gerado após a confirmação. Vencimento em 3 dias úteis.</div>
-              )}
-              <div style={{marginTop:18,padding:"12px 16px",background:C.lilacSoft,borderRadius:11,fontSize:12,color:C.indigo,display:"flex",alignItems:"center",gap:9}}><Ic n="lock" s={16} c={C.indigo}/> Pagamento por gateway seguro (Asaas / Mercado Pago) · conta jurídica Inter</div>
+              <div style={{marginTop:18,padding:"12px 16px",background:C.lilacSoft,borderRadius:11,fontSize:12,color:C.indigo,display:"flex",alignItems:"center",gap:9}}><Ic n="lock" s={16} c={C.indigo}/> Pagamento seguro · integração com o banco Inter (PIX e cartão)</div>
             </div>
           </div>
         )}
