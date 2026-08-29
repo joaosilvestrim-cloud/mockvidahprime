@@ -1,0 +1,28 @@
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Inter',system-ui,sans-serif;background:#F5F4FA;color:#211E43;-webkit-font-smoothing:antialiased;}
+a{color:inherit;}
+button{font-family:inherit;}
+::-webkit-scrollbar{width:7px;height:7px;}
+::-webkit-scrollbar-thumb{background:#C9C5E4;border-radius:6px;}
+::-webkit-scrollbar-thumb:hover{background:#4E4B8E;}
+input:focus,select:focus,textarea:focus{border-color:#4E4B8E!important;outline:none;box-shadow:0 0 0 3px rgba(78,75,142,0.12);}
+
+@media(max-width:860px){.nav-links{display:none!important;}.hamburger{display:flex!important;}.hero-grid{grid-template-columns:1fr!important;}.hero-video{display:none!important;}}
+@media(min-width:861px){.hamburger{display:none!important;}}
+
+@keyframes vpFadeUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes vpFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-22px)}}
+@keyframes vpDrift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-18px,14px) scale(1.06)}}
+@keyframes vpPulse{0%{transform:scale(1);opacity:.7}70%{transform:scale(2.1);opacity:0}100%{opacity:0}}
+@keyframes vpSpin{to{transform:rotate(360deg)}}
+.vp-anim{opacity:0;animation:vpFadeUp .85s cubic-bezier(.2,.7,.2,1) both}
+.vp-float{transform-box:fill-box;transform-origin:center;animation:vpFloat 8s ease-in-out infinite}
+.vp-float2{transform-box:fill-box;transform-origin:center;animation:vpDrift 11s ease-in-out infinite}
+.vp-pulse-ring{position:absolute;width:64px;height:64px;border-radius:50%;border:2px solid rgba(255,255,255,0.55);animation:vpPulse 2.4s ease-out infinite}
+.vp-spin{animation:vpSpin .8s linear infinite}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .7s cubic-bezier(.2,.7,.2,1),transform .7s cubic-bezier(.2,.7,.2,1)}
+.reveal.reveal-in{opacity:1;transform:none}
+.reveal-fade{opacity:0;transition:opacity .8s ease}
+.reveal-fade.reveal-in{opacity:1}
+@media(prefers-reduced-motion:reduce){.vp-anim,.reveal,.reveal-fade{animation:none!important;opacity:1!important;transform:none!important;transition:none!important}.vp-float,.vp-float2,.vp-pulse-ring{animation:none!important}}

@@ -1,0 +1,29 @@
+{
+  "name": "vidahprime",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Vidah Prime — coworking para saúde, bem-estar e estética.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:apply": "node scripts/apply.js",
+    "db:admin": "node scripts/create-admin.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/joaosilvestrim-cloud/mockvidahprime.git"
+  },
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@supabase/ssr": "^0.12.5",
+    "@supabase/supabase-js": "^2.112.4",
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "dotenv": "^17.4.2",
+    "pg": "^8.23.0"
+  }
+}
