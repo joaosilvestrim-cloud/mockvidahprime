@@ -63,10 +63,17 @@ export default function Booking({ rooms }) {
 
   const confirm = async () => {
     setErr(""); setConfirming(true);
-    const slots = times.map(t => {
-      const h = parseInt(t);
-      return { start: new Date(date.y,date.m,date.d,h,0,0).toISOString(), end: new Date(date.y,date.m,date.d,h+1,0,0).toISOString() };
-    });
+    // Período Fixo reserva o mesmo horário por 4 semanas (mês). Avulso/Flex: só o dia escolhido.
+    const weeks = mode.id === "fixo" ? [0,7,14,21] : [0];
+    const slots = [];
+    for (const off of weeks) {
+      for (const t of times) {
+        const h = parseInt(t);
+        const s = new Date(date.y,date.m,date.d + off,h,0,0);
+        const e = new Date(date.y,date.m,date.d + off,h+1,0,0);
+        slots.push({ start: s.toISOString(), end: e.toISOString() });
+      }
+    }
     const { data, error } = await supabase.rpc("create_booking", { p_room: room.id, p_use_mode: mode.id, p_payment: pay, p_slots: slots });
     setConfirming(false);
     if (error) {

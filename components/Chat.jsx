@@ -7,14 +7,17 @@ const HELLO = "Olá! Sou a Vi, assistente da Vidah Prime.\n\nPosso ajudar com sa
 
 function reply(u) {
   const t = u.toLowerCase();
+  if (/humano|equipe|falar com|atendente|contato/.test(t)) return "__LEAD__";
   if (t.includes("sala")) return "Temos a Sala Clínica (com maca, para consultas, procedimentos e estética), a Sala Conecta (escuta e conexão), a Sala Odontológica (consultório completo) e a Sala Meeting (reuniões e palestras). Quer ver as salas?";
-  if (/plano|preç|valor|period|flex|fixo|avuls/.test(t)) return "Você pode reservar de 3 jeitos: Hora Avulsa (paga o que usa), Período Flex (manhã ou tarde, sem dia fixo) e Período Fixo (mesmo dia e horário toda semana). O valor depende da sala.";
-  if (/cadastr|document/.test(t)) return "O cadastro é único: você envia um documento que comprove sua atuação profissional (quando aplicável), comprovante de endereço e documento pessoal, assina o contrato uma vez e, após a aprovação, já pode reservar.";
+  if (/incluí|inclui|estrutura|recep|café|cafe|espera|internet|estacion/.test(t)) return "A reserva inclui recepcionista para acolher seus pacientes, sala de espera com TV e música, café, água e chá, ar-condicionado, internet, limpeza e manutenção, e central de esterilização conforme a sala. Você chega e atende; a Vidah cuida da estrutura.";
+  if (/visit|conhecer|antes de reservar|ver o espaço|ver o espaco/.test(t)) return "Claro! Você pode agendar uma visita para conhecer o espaço e tirar dúvidas antes da primeira reserva. Quer que eu chame a equipe para marcar?";
+  if (/plano|preç|preco|valor|period|flex|fixo|avuls/.test(t)) return "Você pode reservar de 3 jeitos: Hora Avulsa (paga o que usa), Período Flex (manhã ou tarde, sem dia fixo) e Período Fixo (mesmo dia e horário toda semana). O valor depende da sala.";
+  if (/mais de um|vários|varios|mudar|alterar|trocar/.test(t)) return "Sim, você pode concentrar vários atendimentos no período reservado e, no Período Flex, escolher dias diferentes a cada semana. Alterações de Período Fixo dependem da disponibilidade da agenda.";
+  if (/cadastr|document|aprov/.test(t)) return "O cadastro é único: você envia um documento que comprove sua atuação profissional (quando aplicável), comprovante de endereço e documento pessoal, assina o contrato uma vez e, após a aprovação da equipe, já pode reservar.";
   if (t.includes("cancel")) return "O valor não volta em dinheiro, vira crédito. Com mais de 48h de antecedência o crédito vale por até 60 dias. Com menos de 48h, o valor é considerado utilizado.";
   if (/pag|pix|cart/.test(t)) return "Aceitamos Pix e cartão de crédito. O pagamento é feito no momento da reserva e a confirmação sai na hora.";
-  if (/quem|profiss|estetic|massot|podolog/.test(t)) return "A Vidah é para saúde, estética e bem-estar: médicos, dentistas, psicólogos, nutricionistas, fisioterapeutas, esteticistas, massoterapeutas, terapeutas e mais.";
-  if (/humano|equipe|falar|atend/.test(t)) return "__LEAD__";
-  return "Posso ajudar com salas, formas de uso, cadastro, cancelamento e pagamento. Se preferir, falo com a equipe pra você.";
+  if (/quem|profiss|estetic|massot|podolog|posso atender/.test(t)) return "A Vidah é para saúde, estética e bem-estar: médicos, dentistas, psicólogos, nutricionistas, fisioterapeutas, esteticistas, massoterapeutas, terapeutas e mais. Você mantém sua autonomia e sua relação com seus pacientes.";
+  return "Posso ajudar com salas, formas de uso, o que está incluído, visita, cadastro, cancelamento e pagamento. Se preferir, falo com a equipe pra você.";
 }
 
 export default function Chat({ onReservar }) {
