@@ -33,19 +33,24 @@ export default function Onboarding({ initial }) {
 
   const inputStyle = { width:"100%",padding:"12px 14px",border:`1.5px solid ${C.line}`,borderRadius:11,fontSize:14,fontFamily:F.body,boxSizing:"border-box" };
 
-  // STEP 0 — cria conta e entra
+  // STEP 0 — cria conta e entra (chave pública; e-mail auto-confirmado no banco)
   const createAccount = async () => {
     setErr("");
     if (!form.full_name || !form.email || form.password.length < 8) { setErr("Preencha nome, e-mail e uma senha de 8+ caracteres."); return; }
     setBusy(true);
-    const res = await fetch("/api/auth/signup", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.email, password: form.password, full_name: form.full_name }),
+    const email = form.email.trim().toLowerCase();
+    const { data, error } = await supabase.auth.signUp({
+      email, password: form.password, options: { data: { full_name: form.full_name } },
     });
-    const j = await res.json();
-    if (!res.ok) { setBusy(false); setErr(j.error || "Falha ao criar conta."); return; }
-    const { error } = await supabase.auth.signInWithPassword({ email: form.email.trim().toLowerCase(), password: form.password });
-    if (error) { setBusy(false); setErr(error.message); return; }
+    if (error) {
+      setBusy(false);
+      setErr(/registered|already|exists/i.test(error.message) ? "Este e-mail já tem cadastro. Faça login." : error.message);
+      return;
+    }
+    if (!data.session) {
+      const { error: le } = await supabase.auth.signInWithPassword({ email, password: form.password });
+      if (le) { setBusy(false); setErr(le.message); return; }
+    }
     const { data: { user } } = await supabase.auth.getUser();
     setUid(user?.id || null);
     setBusy(false); setStep(1);
