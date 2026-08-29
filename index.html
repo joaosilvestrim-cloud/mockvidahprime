@@ -133,8 +133,8 @@ const LogoMark = ({s=36}) => (
   </svg>
 );
 const Wordmark = ({color=C.navy,size=20}) => (
-  <span style={{fontFamily:F.body,fontWeight:800,fontSize:size,letterSpacing:"-0.02em",lineHeight:1,color}}>
-    Vidah<span style={{color:C.teal,fontWeight:600}}> prime</span>
+  <span style={{fontFamily:F.body,fontWeight:800,fontSize:size,letterSpacing:"-0.02em",lineHeight:1,color,whiteSpace:"nowrap"}}>
+    V<span style={{position:"relative",display:"inline-block"}}>ı<span style={{position:"absolute",top:-size*0.08,left:"50%",transform:"translateX(-50%)",width:size*0.15,height:size*0.15,borderRadius:"50%",background:C.coral}}/></span>dah<span style={{color:C.teal,fontWeight:600}}> prime</span>
   </span>
 );
 const Stars = ({n=5,s=15}) => (
@@ -150,55 +150,50 @@ const Eyebrow = ({children}) => (
 
 /* ─── Dados ─── */
 const ROOMS = [
-  { id:1, name:"Sala Conecta 1", cat:"Conecta", tag:"Acolhedora", icon:"sofa", accent:C.indigo, accent2:C.indigoDeep, ambiente:"Sóbria", desc:"Ambiente silencioso para psicologia, terapia ocupacional e neuropedagogia.", size:"15m²", cap:3, priceHora:40, available:true, rating:5.0, reviews:124, specialties:["Psicologia","Terapia Ocupacional","Neuropedagogia","Fonoaudiologia"], features:["Isolamento acústico certificado","Iluminação regulável","Poltronas terapêuticas","Porta dupla sigilosa","Wi-Fi 500 Mbps","Ar-condicionado silencioso"] },
-  { id:2, name:"Sala Conecta 2", cat:"Conecta", tag:"Colorida", icon:"palette", accent:C.coral, accent2:C.coralDeep, ambiente:"Colorida", desc:"Espaço lúdico e colorido, ideal para atendimento infantil e terapias integrativas.", size:"16m²", cap:4, priceHora:40, available:true, rating:4.9, reviews:61, specialties:["Psicopedagogia","Terapia Infantil","Fonoaudiologia","Terapia Ocupacional"], features:["Decoração lúdica","Materiais infantis","Isolamento acústico","Tapete emborrachado","Wi-Fi 500 Mbps","Ar-condicionado"] },
-  { id:3, name:"Sala Clínica 3", cat:"Clínica", tag:"Com maca", icon:"pulse", accent:C.teal, accent2:C.tealDeep, ambiente:"Sóbria", desc:"Sala com maca para procedimentos, dermatologia, estética, nutrição e clínica geral.", size:"18m²", cap:3, priceHora:55, available:true, rating:4.8, reviews:87, specialties:["Dermatologia","Estética","Nutrição","Clínica Geral","Acupuntura"], features:["Maca clínica ajustável","Torneira sem toque","Iluminação LED profissional","Frigobar para insumos","Wi-Fi 500 Mbps","Ar-condicionado inverter"] },
-  { id:4, name:"Sala Odontológica 4", cat:"Odontológica", tag:"Equipada", icon:"tooth", accent:C.navy, accent2:C.navyDeep, ambiente:"Sóbria", desc:"Consultório odontológico completo, com cadeira, equipo e sugador para todas as especialidades.", size:"20m²", cap:2, priceHora:70, available:true, rating:4.9, reviews:52, specialties:["Odontologia","Ortodontia","Implantodontia","Endodontia"], features:["Cadeira odontológica completa","Equipo e sugador","Autoclave de bancada","Raio-X periapical","Compressor silencioso","Wi-Fi 500 Mbps"] },
-  { id:5, name:"Sala Odontológica 5", cat:"Odontológica", tag:"Premium", icon:"spark", accent:C.lilac, accent2:C.indigoDeep, ambiente:"Colorida", desc:"Consultório odontológico premium, com decoração diferenciada e conforto para o paciente.", size:"22m²", cap:2, priceHora:70, available:false, rating:4.8, reviews:34, specialties:["Odontologia Estética","Harmonização","Ortodontia"], features:["Cadeira top de linha","Fotopolimerizador","Autoclave","Iluminação de conforto","Tela para o paciente","Wi-Fi 500 Mbps"] },
-  { id:6, name:"Sala de Reuniões e Palestras", cat:"Reuniões", tag:"Até 20 pessoas", icon:"present", accent:C.navyDeep, accent2:"#0E0C28", ambiente:"Sóbria", desc:"Espaço amplo para palestras, supervisões clínicas, treinamentos e reuniões multidisciplinares.", size:"45m²", cap:20, priceHora:120, available:true, rating:4.9, reviews:29, specialties:["Palestras","Supervisão Clínica","Treinamentos","Workshops"], features:["Projetor 4K e tela","TV 65\" e HDMI","Cadeiras para 20 pessoas","Sistema de som","Videoconferência","Coffee break opcional"] },
+  { id:1, name:"Sala Clínica 07", cat:"Clínica", tag:"Com maca", icon:"pulse", accent:C.teal, accent2:C.tealDeep, ambiente:"Saúde e estética", priceHora:55, available:true, desc:"Sala com maca para atendimentos clínicos, consultas, avaliações, procedimentos e terapias em saúde, bem-estar e estética.", specialties:["Clínica","Dermatologia","Nutrição","Estética","Acupuntura"] },
+  { id:2, name:"Sala Clínica 09", cat:"Clínica", tag:"Com maca", icon:"pulse", accent:C.coral, accent2:C.coralDeep, ambiente:"Saúde e estética", priceHora:55, available:true, desc:"Sala versátil com maca para consultas, avaliações, procedimentos e atendimentos em saúde, bem-estar e estética.", specialties:["Clínica","Fisioterapia","Enfermagem","Estética","Bem-estar"] },
+  { id:3, name:"Sala Conecta 11", cat:"Conecta", tag:"Escuta e conexão", icon:"sofa", accent:C.indigo, accent2:C.indigoDeep, ambiente:"Acolhedora", priceHora:40, available:true, desc:"Sala confortável para atendimentos individuais, avaliações e momentos de escuta e conexão.", specialties:["Psicologia","Nutrição","Fonoaudiologia","Terapias integrativas"] },
+  { id:4, name:"Sala Odontológica", cat:"Odontológica", tag:"Equipada", icon:"tooth", accent:C.navy, accent2:C.navyDeep, ambiente:"Consultório completo", priceHora:70, available:true, desc:"Consultório odontológico completo, com cadeira, equipo, sugador, bomba a vácuo e ultrassom, para diversas especialidades e procedimentos.", specialties:["Odontologia","Ortodontia","Implantodontia","Endodontia"] },
+  { id:5, name:"Sala Meeting", cat:"Meeting", tag:"Reuniões e palestras", icon:"present", accent:C.navyDeep, accent2:"#0E0C28", ambiente:"Amplo e versátil", priceHora:120, available:true, desc:"Espaço amplo e versátil para reuniões, palestras, treinamentos, dinâmicas, workshops e encontros profissionais.", specialties:["Reuniões","Palestras","Treinamentos","Workshops"] },
+  { id:6, name:"Sala Conecta 12", cat:"Conecta", tag:"Em breve", icon:"sofa", accent:C.lilac, accent2:C.indigoDeep, ambiente:"Em preparação", priceHora:40, available:false, desc:"Mais uma Sala Conecta em preparação. Em breve, novo espaço para atendimentos individuais.", specialties:["Psicologia","Terapias","Nutrição"] },
 ];
 
 const USE_MODES = [
-  { id:"avulso", name:"Avulso por hora", sub:"Pague só o que usar", icon:"clock", desc:"Ideal para quem está começando ou atende esporadicamente. Reserve hora a hora, sem mensalidade.", badge:null },
-  { id:"pacote", name:"Pacote de horas", sub:"8h, 16h ou 30h no mês", icon:"pkg", desc:"Compre um bloco de horas e use ao longo de 30 dias. Quanto maior o pacote, mais barata fica a hora.", badge:"Mais popular" },
-  { id:"periodo", name:"Período fixo", sub:"Turno recorrente ou mensal", icon:"cal", desc:"Reserve o mesmo turno toda semana ou a sala fechada no mês inteiro. Melhor custo por hora.", badge:"Melhor custo" },
+  { id:"avulso", name:"Hora Avulsa", sub:"Pague o que usar", icon:"clock", tagline:"Flexibilidade no seu ritmo", desc:"Ideal para profissionais que buscam flexibilidade para atendimentos pontuais ou esporádicos. Reserve hora a hora, sem mensalidade.", badge:null },
+  { id:"flex", name:"Período Flex", sub:"Manhã ou tarde, sem dia fixo", icon:"sliders", tagline:"Mais liberdade para sua agenda", desc:"Escolha o período que se adapta à sua rotina, manhã ou tarde, e concentre seus atendimentos sem precisar manter um dia fixo da semana.", badge:"Mais flexível" },
+  { id:"fixo", name:"Período Fixo", sub:"Mesmo dia e horário, toda semana", icon:"cal", tagline:"Sua sala sempre reservada", desc:"Uma rotina de atendimento com a comodidade de reservar seu espaço semanalmente, no mesmo dia e horário escolhidos por você.", badge:"Melhor para rotina" },
 ];
-const PACKAGES = [
-  { id:"p8", hours:8, off:0.10 },
-  { id:"p16", hours:16, off:0.18 },
-  { id:"p30", hours:30, off:0.28 },
-];
-const FISCAL_ADDON = { price:89, per:"/mês", note:"Disponível para contratos de 12 meses. Uso do endereço para CNPJ, conselhos profissionais e correspondências." };
 
 const TESTIMONIALS = [
-  { name:"Dra. Amanda Ferreira", role:"Psicóloga · CRP 06/123456", text:"Tenho espaço profissional sem os custos fixos de uma sala própria. A validação no conselho passa segurança pra mim e pros meus pacientes.", rating:5, av:"AF", plan:"Pacote 16h" },
-  { name:"Dr. Carlos Mendes", role:"Nutricionista · CRN 7890", text:"O cadastro com contrato assinado uma vez só é ótimo. Depois é só reservar e atender. Simples de verdade.", rating:5, av:"CM", plan:"Pacote 8h" },
-  { name:"Dra. Juliana Costa", role:"Dermatologista · CRM 45678", text:"A Sala Clínica tem tudo que preciso pros procedimentos. Higiene impecável e o bloqueio de limpeza entre atendimentos faz diferença.", rating:5, av:"JC", plan:"Período fixo" },
-  { name:"Dr. Roberto Alves", role:"Cirurgião-Dentista · CRO 90123", text:"Consultório odontológico completo por hora. Antes eu pagava um aluguel cheio pra usar pouco. Aqui pago pelo que uso.", rating:5, av:"RA", plan:"Avulso" },
+  { name:"Raquel Leme Barros", role:"Nutricionista", av:"RB", text:"O espaço atende plenamente às minhas necessidades. É muito bem localizado, com estacionamento e uma equipe de recepção sempre atenciosa. Novo, bonito, climatizado e sempre impecavelmente limpo." },
+  { name:"Ana Caroline Cavalcante Sanches", role:"Nutricionista", av:"AS", text:"Utilizar as salas da Vidah Prime facilita muito o dia a dia. É possível reservar com um intervalo curto de antecedência e as meninas da recepção são muito solícitas!" },
+  { name:"Rômulo da Costa Torres", role:"Médico Anestesiologista e Acupunturista", av:"RT", text:"Encontrei exatamente o que procurava: praticidade, estrutura e um preço justo. Todo o processo foi simples, rápido e sem burocracia. Recepcionista e estacionamento próprio fazem toda a diferença." },
+  { name:"Monique Martins", role:"Enfermeira Estomaterapeuta", av:"MM", text:"Experiência excelente para mim e para os meus pacientes. Ambiente organizado, acolhedor e profissional, que ajuda na produtividade e no foco. Recomendo de olhos fechados!" },
+  { name:"Luciana Maria da Silva", role:"Fisioterapeuta", av:"LS", text:"Ambientes acolhedores, organizados e adequados para um atendimento profissional e reservado. Um espaço que transmite profissionalismo, confiança e acolhimento. Ótimo custo-benefício." },
 ];
 const FAQ_DATA = [
-  { q:"Preciso me cadastrar antes de reservar?", a:"Sim. Antes da primeira reserva você faz um cadastro único, envia 3 documentos (carteirinha do conselho, comprovante de endereço e documento pessoal) e assina o contrato digitalmente. Depois de aprovado, é só reservar e pagar. Você não repete isso a cada reserva." },
-  { q:"Por que vocês validam meu conselho de classe?", a:"Para manter um ambiente seguro e sério. Conferimos no conselho (CRM, CRO, CRP, CRN e outros) se você está ativo antes de liberar o acesso. Assim ninguém sem registro atende dentro do espaço." },
-  { q:"Como funciona o pacote de horas?", a:"Você compra um bloco (8h, 16h ou 30h) e usa ao longo de 30 dias. Cada reserva desconta as horas do seu saldo. Quanto maior o pacote, mais barata fica a hora. Horas não usadas no período não acumulam." },
-  { q:"Sempre tem contrato, mesmo por 1 hora?", a:"Sim. Como é um coworking da saúde, o contrato existe para proteger você e a Vidah Prime juridicamente, mesmo em locações curtas. Ele é assinado uma vez, no cadastro." },
-  { q:"Tem intervalo de limpeza entre atendimentos?", a:"Sim. O sistema bloqueia automaticamente 30 minutos após cada reserva para higienização da sala. É essencial na área da saúde." },
-  { q:"Posso cancelar uma reserva?", a:"Pode. Cancelamentos com mais de 24h de antecedência devolvem a hora ao seu saldo. Com menos de 24h, a hora é consumida." },
-  { q:"Posso usar o endereço para meu CNPJ?", a:"Sim, com o adicional de endereço fiscal, disponível para contratos de 12 meses. Você usa o endereço para abertura de CNPJ, registro nos conselhos e correspondências." },
-  { q:"Como falo com um humano?", a:"A Vi, nossa assistente, tira dúvidas e conecta você com a equipe. Também temos WhatsApp e e-mail para negociar pacotes personalizados." },
+  { q:"Preciso me cadastrar antes de reservar?", a:"Sim. Antes da primeira reserva você faz um cadastro único, envia 3 documentos (documento que comprove sua habilitação ou atuação profissional quando aplicável, comprovante de endereço e documento pessoal) e assina o contrato digitalmente. Depois de aprovado, é só reservar e pagar. Você não repete isso a cada reserva." },
+  { q:"Quais profissionais podem utilizar o espaço?", a:"A Vidah foi pensada para as áreas de saúde, estética e bem-estar: médicos, dentistas, psicólogos, nutricionistas, fisioterapeutas, fonoaudiólogos, terapeutas, esteticistas, massoterapeutas, profissionais de terapias integrativas, entre outros. A disponibilidade depende da atividade e das características de cada sala." },
+  { q:"Sempre tem contrato, mesmo por 1 hora?", a:"Sim. Antes da primeira reserva fazemos um cadastro único para conhecer você e sua área de atuação, com alguns documentos para confirmar seus dados. Depois da aprovação e da assinatura do contrato digital, você já pode reservar normalmente. O cadastro é feito uma única vez." },
+  { q:"O que está incluído na reserva da sala?", a:"Recepcionista para acolhimento dos pacientes, monitoramento das áreas comuns, sala de espera com TV e música, café, água e chá, ar-condicionado, limpeza e manutenção, internet, IPTU, copa e cozinha, espaço de descompressão e central de esterilização conforme a sala. Você chega, atende e cuida dos seus pacientes; a Vidah cuida da estrutura." },
+  { q:"Posso cancelar uma reserva?", a:"Sim. O valor não é devolvido em dinheiro, mas vira crédito. Com mais de 48h de antecedência, o crédito fica disponível para uma nova reserva por até 60 dias. Com menos de 48h, como o período foi reservado só para você, o valor é considerado utilizado e não gera crédito." },
+  { q:"Quais formas de pagamento vocês aceitam?", a:"Pix e cartão de crédito. No momento da reserva, as opções disponíveis aparecem para você escolher a mais conveniente. O pagamento é feito na hora da reserva e, após a confirmação, o horário fica reservado para você." },
+  { q:"Por que escolher a Vidah para atender?", a:"Porque você tem a estrutura de um espaço profissional sem assumir os custos e a rotina de um consultório próprio. Ambientes preparados para saúde, estética e bem-estar, com recepção, sala de espera, limpeza, internet e suporte. Você escolhe como usar: hora avulsa, período flex ou período fixo. Você cuida da sua profissão, o Vidah cuida do espaço." },
+  { q:"Como falo com um humano?", a:"A Vi, nossa assistente, tira dúvidas e conecta você com a equipe. Também temos WhatsApp e e-mail para atendimento personalizado." },
 ];
 const HOW = [
-  { n:"01", icon:"userCheck", t:"Cadastre-se e valide", d:"Envie seus documentos e o registro do conselho. Nós validamos e você assina o contrato uma vez." },
-  { n:"02", icon:"building", t:"Escolha a sala", d:"Conecta, Clínica, Odontológica ou Reuniões. Cada uma equipada para a sua especialidade." },
-  { n:"03", icon:"calCheck", t:"Reserve data e hora", d:"Veja a disponibilidade em tempo real. Avulso, pacote de horas ou período fixo." },
-  { n:"04", icon:"card", t:"Pague e atenda", d:"PIX ou cartão. Confirmação na hora e comprovante na sua área do cliente." },
+  { n:"01", icon:"userCheck", t:"Cadastre-se uma vez", d:"Documentos validados, contrato único e reservas rápidas e seguras. Use quando precisar." },
+  { n:"02", icon:"building", t:"Escolha sua sala", d:"Conecta, Clínica, Odontológica ou Meeting. Cada uma equipada para a sua especialidade." },
+  { n:"03", icon:"calCheck", t:"Reserve data e hora", d:"Veja a disponibilidade em tempo real. Hora Avulsa, Período Flex ou Período Fixo." },
+  { n:"04", icon:"card", t:"Pague e atenda", d:"Pix ou crédito. Confirmação na hora e comprovante na sua área do cliente." },
 ];
 const DIFERENCIAIS = [
-  { icon:"shield", t:"Cadastro validado", d:"Todo profissional passa por validação no conselho de classe. Ambiente seguro e sério." },
-  { icon:"droplet", t:"Higienização garantida", d:"30 minutos de limpeza bloqueados automaticamente entre cada atendimento." },
-  { icon:"doc", t:"Contrato digital", d:"Assinado uma vez, com validade jurídica. Protege você e mantém tudo em conformidade." },
-  { icon:"pin", t:"Endereço fiscal", d:"Adicional para usar o endereço no seu CNPJ e registros profissionais." },
+  { icon:"shield", t:"Cadastro verificado", d:"Todos os profissionais passam por uma análise cadastral, para um ambiente mais seguro e confiável." },
+  { icon:"droplet", t:"Higienização garantida", d:"A cada troca de profissional, reservamos um tempo para higienização e preparo da sala." },
+  { icon:"doc", t:"Contrato digital", d:"Assinado uma vez. Protege você e mantém tudo em conformidade." },
+  { icon:"building", t:"Estrutura completa", d:"Recepção, sala de espera, café, internet, limpeza e manutenção inclusos." },
   { icon:"chat", t:"Assistente Vi", d:"Tira dúvidas, ajuda a agendar e conecta com a equipe a qualquer hora." },
-  { icon:"card", t:"Pagamento flexível", d:"PIX ou cartão em até 12x. Saldo de horas e histórico sempre à mão." },
+  { icon:"card", t:"Pagamento flexível", d:"Pix ou crédito. Pagou, a reserva está feita." },
 ];
 const TODAY_SCHEDULE = [
   { time:"08:00", end:"09:00", prof:"Dra. Amanda Ferreira", spec:"Psicóloga", room:1, status:"confirmed" },
@@ -270,6 +265,7 @@ function VidahPrime() {
   const [adminTab,setAdminTab] = useState("aprovacoes");
   const [signups,setSignups] = useState(PENDING_SIGNUPS);
   const [blockedSlots,setBlockedSlots] = useState([]);
+  const [blockedProfs,setBlockedProfs] = useState([]);
 
   const [chatOpen,setChatOpen] = useState(false);
   const [chatFull,setChatFull] = useState(false);
@@ -304,8 +300,8 @@ function VidahPrime() {
 
   const obCanNext = () => {
     if(obStep===0) return obForm.name&&obForm.email&&obForm.phone&&obForm.cpf;
-    if(obStep===1) return obForm.council&&obForm.spec;
-    if(obStep===2) return obForm.docs.carteira&&obForm.docs.endereco&&obForm.docs.pessoal;
+    if(obStep===1) return !!obForm.spec;
+    if(obStep===2) return obForm.docs.endereco&&obForm.docs.pessoal;
     if(obStep===3) return obForm.accept;
     return true;
   };
@@ -324,40 +320,35 @@ function VidahPrime() {
   const togDate = (d) => { if(!d||isPast(d)||isSoon(d)) return; const k=`${calY}-${calM}-${d}`; setDates(p=>p.includes(k)?p.filter(x=>x!==k):[...p,k]); };
   const togTime = (t) => setTimes(p=>p.includes(t)?p.filter(x=>x!==t):[...p,t]);
 
-  const hourRate = () => {
-    if(!room) return 0;
-    if(useMode?.id==="pacote"&&pkg) return room.priceHora*(1-pkg.off);
-    if(useMode?.id==="periodo") return room.priceHora*(1-0.30);
-    return room.priceHora;
-  };
+  const hourRate = () => room ? room.priceHora : 0;
+  const slotsCount = () => times.length*Math.max(dates.length,1);
   const bookingTotal = () => {
-    const slots = times.length*Math.max(dates.length,1);
-    if(useMode?.id==="pacote"&&pkg) return room.priceHora*(1-pkg.off)*pkg.hours + (fiscal?FISCAL_ADDON.price:0);
-    if(useMode?.id==="periodo") return room.priceHora*(1-0.30)*slots*4 + (fiscal?FISCAL_ADDON.price:0);
-    return hourRate()*slots + (fiscal?FISCAL_ADDON.price:0);
+    const base = hourRate()*slotsCount();
+    return useMode?.id==="fixo" ? base*4 : base;   // Período Fixo = recorrente no mês
   };
   const bookCanNext = () => {
     if(step===0) return !!room;
-    if(step===1) return !!useMode && (useMode.id!=="pacote"||!!pkg);
+    if(step===1) return !!useMode;
     if(step===2) return dates.length>0&&times.length>0;
     return true;
   };
   const confirmBooking = () => {
-    const b = { id:genId(), room, useMode, pkg, dates:[...dates], times:[...times], total:bookingTotal(), pay, fiscal, when:new Date() };
+    const b = { id:genId(), room, useMode, dates:[...dates], times:[...times], total:bookingTotal(), pay, when:new Date() };
     setLastBooking(b); setMyBookings(p=>[b,...p]);
-    if(useMode?.id==="pacote"&&pkg) setHourBalance(bal=>bal + pkg.hours - times.length*Math.max(dates.length,1));
     setStep(4);
   };
 
   const pushMsg = (role,content) => setMsgs(p=>[...p,{role,content}]);
   const botReply = (u) => {
     const t = u.toLowerCase();
-    if(t.includes("sala")) return "Temos Sala Conecta (psicologia e terapias), Sala Clínica (procedimentos e maca), Sala Odontológica (equipada) e a Sala de Reuniões e Palestras. Quer que eu te leve pra ver as salas?";
-    if(t.includes("plano")||t.includes("preç")||t.includes("valor")||t.includes("pacote")) return "Você pode alugar avulso por hora, comprar um pacote (8h, 16h ou 30h com desconto) ou fechar um período fixo. Quanto maior o pacote, mais barata a hora. Quer ver os valores?";
-    if(t.includes("cadastr")||t.includes("document")) return "O cadastro é único: você envia carteirinha do conselho, comprovante de endereço e documento pessoal, assina o contrato uma vez e, após validarmos seu registro, já pode reservar. Posso começar seu cadastro?";
-    if(t.includes("fiscal")||t.includes("cnpj")) return "Com o adicional de endereço fiscal (contratos de 12 meses) você usa nosso endereço no CNPJ e nos conselhos. Quer que eu chame a equipe pra detalhar?";
+    if(t.includes("sala")) return "Temos a Sala Clínica (com maca, para consultas, procedimentos e estética), a Sala Conecta (escuta e conexão), a Sala Odontológica (consultório completo) e a Sala Meeting (reuniões e palestras). Quer que eu te leve pra ver as salas?";
+    if(t.includes("plano")||t.includes("preç")||t.includes("valor")||t.includes("period")||t.includes("flex")||t.includes("fixo")||t.includes("avuls")) return "Você pode reservar de 3 jeitos: Hora Avulsa (paga o que usar), Período Flex (manhã ou tarde, sem dia fixo) e Período Fixo (mesmo dia e horário toda semana). O valor depende da sala. Quer ver as opções?";
+    if(t.includes("cadastr")||t.includes("document")) return "O cadastro é único: você envia um documento que comprove sua atuação profissional (quando aplicável), comprovante de endereço e documento pessoal, assina o contrato uma vez e, após a aprovação, já pode reservar. Posso começar seu cadastro?";
+    if(t.includes("cancel")) return "O valor não volta em dinheiro, vira crédito. Com mais de 48h de antecedência o crédito fica disponível por até 60 dias. Com menos de 48h, o valor é considerado utilizado.";
+    if(t.includes("pag")||t.includes("pix")||t.includes("cart")) return "Aceitamos Pix e cartão de crédito. O pagamento é feito no momento da reserva e a confirmação sai na hora.";
+    if(t.includes("quem")||t.includes("profiss")||t.includes("estetic")||t.includes("massot")||t.includes("podolog")) return "A Vidah é para saúde, estética e bem-estar: médicos, dentistas, psicólogos, nutricionistas, fisioterapeutas, esteticistas, massoterapeutas, terapeutas e mais. Se tiver dúvida se seu atendimento se encaixa, falo com a equipe.";
     if(t.includes("humano")||t.includes("equipe")||t.includes("falar")||t.includes("atend")) return "__LEAD__";
-    return "Posso ajudar com salas, planos, cadastro, endereço fiscal e agendamento. Se preferir, falo com a equipe pra você. O que faz mais sentido?";
+    return "Posso ajudar com salas, formas de uso, cadastro, cancelamento e pagamento. Se preferir, falo com a equipe pra você. O que faz mais sentido?";
   };
   const sendChat = (directMsg=null) => {
     const u = (directMsg||chatIn).trim();
@@ -447,14 +438,14 @@ function VidahPrime() {
               Seu consultório ideal,<br/><span style={{color:"#7FE3D0",fontStyle:"italic"}}>quando e como precisar</span>
             </h1>
             <p className="vp-anim" style={{color:"rgba(255,255,255,0.82)",fontSize:"clamp(16px,2vw,18.5px)",lineHeight:1.7,marginBottom:34,maxWidth:520,animationDelay:".15s"}}>
-              Salas equipadas e validadas para profissionais da saúde. Cadastro seguro, contrato assinado uma vez e reserva por hora, pacote ou período.
+              Salas planejadas e equipadas para profissionais da saúde, bem-estar e estética. Mais praticidade para atender. Mais liberdade para cuidar.
             </p>
             <div className="vp-anim" style={{display:"flex",gap:14,flexWrap:"wrap",marginBottom:44,animationDelay:".25s"}}>
               <button onClick={()=>startBook()} style={{...btnPrimary,padding:"16px 32px",fontSize:16,display:"flex",alignItems:"center",gap:9}}>Quero me cadastrar <Ic n="arrowR" s={18} c="#fff"/></button>
               <a href="#salas" style={{background:"rgba(255,255,255,0.1)",color:"#fff",border:"1px solid rgba(255,255,255,0.28)",borderRadius:12,padding:"16px 28px",fontSize:16,fontWeight:600,textDecoration:"none",backdropFilter:"blur(10px)",display:"flex",alignItems:"center",gap:8}}>Ver salas</a>
             </div>
             <div className="vp-anim" style={{display:"flex",gap:"clamp(20px,4vw,44px)",flexWrap:"wrap",paddingTop:32,borderTop:"1px solid rgba(255,255,255,0.15)",animationDelay:".35s"}}>
-              {[["200+","Profissionais"],["6","Salas"],["100%","Validados"],["24/7","Assistente Vi"]].map(([n,l])=>(
+              {[["12","Salas equipadas"],["16","Vagas de estacionamento"],["24/7","Assistente Vi"]].map(([n,l])=>(
                 <div key={l} style={{color:"#fff"}}>
                   <div style={{fontFamily:F.display,fontSize:"clamp(24px,3vw,32px)",fontWeight:600,color:"#7FE3D0"}}>{n}</div>
                   <div style={{fontSize:12.5,opacity:0.72,marginTop:2}}>{l}</div>
@@ -511,7 +502,7 @@ function VidahPrime() {
         <div style={{maxWidth:1120,margin:"0 auto",position:"relative"}}>
           <div className="reveal" style={{textAlign:"center",marginBottom:56}}>
             <Eyebrow>Por que a Vidah Prime</Eyebrow>
-            <h2 style={{fontFamily:F.display,fontSize:"clamp(28px,4vw,42px)",fontWeight:600,color:"#fff",marginTop:12,letterSpacing:"-0.02em"}}>Feito para a área da saúde</h2>
+            <h2 style={{fontFamily:F.display,fontSize:"clamp(28px,4vw,42px)",fontWeight:600,color:"#fff",marginTop:12,letterSpacing:"-0.02em"}}>Feito para a saúde, o bem-estar e a estética</h2>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(250px,1fr))",gap:18}}>
             {DIFERENCIAIS.map(({icon,t,d},i)=>(
@@ -533,7 +524,7 @@ function VidahPrime() {
           <div className="reveal" style={{textAlign:"center",marginBottom:52}}>
             <Eyebrow>Nossos espaços</Eyebrow>
             <h2 style={{fontFamily:F.display,fontSize:"clamp(28px,4vw,42px)",fontWeight:600,color:C.ink,marginTop:12,marginBottom:14,letterSpacing:"-0.02em"}}>Nossas salas</h2>
-            <p style={{color:C.slate,fontSize:16,maxWidth:600,margin:"0 auto",lineHeight:1.6}}>Cada sala foi preparada para um grupo de especialidades, com equipamentos profissionais e o ambiente certo para o seu atendimento.</p>
+            <p style={{color:C.slate,fontSize:16,maxWidth:620,margin:"0 auto",lineHeight:1.6}}>Salas planejadas para diferentes especialidades e práticas, com estrutura profissional, conforto e recursos pensados para cada tipo de atendimento.</p>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(320px,1fr))",gap:24}}>
             {ROOMS.map((r,i)=>(
@@ -548,14 +539,9 @@ function VidahPrime() {
                 <div style={{padding:24}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8,gap:8}}>
                     <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:600,color:C.ink}}>{r.name}</h3>
-                    <span style={{background:r.ambiente==="Colorida"?C.coralSoft:C.tealSoft,color:r.ambiente==="Colorida"?C.coralDeep:C.tealDeep,fontSize:10.5,fontWeight:700,padding:"4px 10px",borderRadius:100,whiteSpace:"nowrap"}}>{r.ambiente}</span>
+                    <span style={{background:C.tealSoft,color:C.tealDeep,fontSize:10.5,fontWeight:700,padding:"4px 10px",borderRadius:100,whiteSpace:"nowrap"}}>{r.ambiente}</span>
                   </div>
-                  <p style={{color:C.slate,fontSize:13.5,lineHeight:1.6,marginBottom:15}}>{r.desc}</p>
-                  <div style={{display:"flex",gap:16,marginBottom:15,color:C.slate,fontSize:12.5}}>
-                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Ic n="ruler" s={16} c={C.faint}/> {r.size}</span>
-                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Ic n="users" s={16} c={C.faint}/> até {r.cap}</span>
-                    <span style={{display:"inline-flex",alignItems:"center",gap:5}}><Stars n={r.rating} s={13}/> {r.rating.toFixed(1)}</span>
-                  </div>
+                  <p style={{color:C.slate,fontSize:13.5,lineHeight:1.6,marginBottom:16}}>{r.desc}</p>
                   <div style={{borderTop:`1px solid ${C.line}`,paddingTop:14,marginBottom:18}}>
                     <div style={{fontSize:10.5,color:C.faint,marginBottom:8,fontWeight:700,textTransform:"uppercase",letterSpacing:1}}>Especialidades</div>
                     <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
@@ -583,9 +569,8 @@ function VidahPrime() {
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(270px,1fr))",gap:22}}>
             {TESTIMONIALS.map((t,i)=>(
               <div key={t.name} className="reveal" style={{background:C.bg,borderRadius:20,padding:28,border:`1px solid ${C.line}`,transitionDelay:`${i*80}ms`}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-                  <Stars n={t.rating} s={16}/>
-                  <span style={{background:C.tealSoft,color:C.tealDeep,fontSize:10.5,fontWeight:700,padding:"4px 10px",borderRadius:100}}>{t.plan}</span>
+                <div style={{marginBottom:16}}>
+                  <Stars n={5} s={16}/>
                 </div>
                 <p style={{color:C.ink,fontSize:14,lineHeight:1.75,marginBottom:22}}>“{t.text}”</p>
                 <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -611,7 +596,7 @@ function VidahPrime() {
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(290px,1fr))",gap:22,alignItems:"stretch"}}>
             {USE_MODES.map((m,i)=>{
-              const hot = m.id==="pacote";
+              const hot = m.id==="flex";
               return (
                 <div key={m.id} className="reveal" style={{background:hot?`linear-gradient(160deg, ${C.navy}, ${C.indigoDeep})`:C.white,border:hot?"none":`1px solid ${C.line}`,borderRadius:22,padding:32,position:"relative",display:"flex",flexDirection:"column",boxShadow:hot?SH.xl:SH.sm,transitionDelay:`${i*90}ms`}}>
                   {m.badge&&<div style={{position:"absolute",top:-13,left:32,background:hot?C.coral:C.teal,color:"#fff",fontSize:11.5,fontWeight:700,padding:"5px 14px",borderRadius:100}}>{m.badge}</div>}
@@ -621,18 +606,10 @@ function VidahPrime() {
                   <h3 style={{fontFamily:F.display,fontSize:22,fontWeight:600,color:hot?"#fff":C.ink,marginBottom:4}}>{m.name}</h3>
                   <p style={{color:hot?"rgba(255,255,255,0.6)":C.faint,fontSize:13,marginBottom:16}}>{m.sub}</p>
                   <p style={{color:hot?"rgba(255,255,255,0.82)":C.slate,fontSize:13.5,lineHeight:1.7,marginBottom:20,flex:1}}>{m.desc}</p>
-                  {hot ? (
-                    <div style={{marginBottom:22}}>
-                      {PACKAGES.map(p=>(
-                        <div key={p.id} style={{display:"flex",justifyContent:"space-between",fontSize:13,color:"rgba(255,255,255,0.85)",padding:"7px 0",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
-                          <span>{p.hours} horas</span><span style={{color:"#7FE3D0",fontWeight:600}}>-{Math.round(p.off*100)}% na hora</span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : m.id==="periodo" ? (
-                    <div style={{background:C.tealSoft,borderRadius:11,padding:"11px 14px",fontSize:12.5,color:C.tealDeep,marginBottom:22,fontWeight:600}}>Até 30% mais barato que o avulso</div>
-                  ) : (
+                  {m.id==="avulso" ? (
                     <div style={{background:C.bg,borderRadius:11,padding:"11px 14px",fontSize:12.5,color:C.slate,marginBottom:22,border:`1px solid ${C.line}`}}>A partir de <strong style={{color:C.ink}}>{money(Math.min(...ROOMS.map(r=>r.priceHora)))}/hora</strong></div>
+                  ) : (
+                    <div style={{background:hot?"rgba(127,227,208,0.12)":C.tealSoft,borderRadius:11,padding:"11px 14px",fontSize:12.5,color:hot?"#7FE3D0":C.tealDeep,marginBottom:22,fontWeight:600,display:"flex",gap:8,alignItems:"center"}}><Ic n="checkCircle" s={16} c={hot?"#7FE3D0":C.tealDeep}/> {m.tagline}</div>
                   )}
                   <button onClick={()=>{setUseMode(m); startBook();}} style={{width:"100%",background:hot?C.teal:C.indigo,color:"#fff",border:"none",borderRadius:12,padding:14,fontSize:14,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
                     Escolher <Ic n="arrowR" s={17} c="#fff"/>
@@ -640,20 +617,6 @@ function VidahPrime() {
                 </div>
               );
             })}
-          </div>
-          {/* Add-on fiscal */}
-          <div style={{marginTop:24,background:C.white,border:`1.5px dashed ${C.lilac}`,borderRadius:20,padding:"26px 30px",display:"flex",alignItems:"center",gap:20,flexWrap:"wrap",justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"center",gap:18}}>
-              <div style={{width:52,height:52,borderRadius:14,background:C.lilacSoft,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="pin" s={26} c={C.indigo}/></div>
-              <div>
-                <div style={{fontFamily:F.display,fontSize:19,fontWeight:600,color:C.ink}}>Adicional: Endereço fiscal</div>
-                <div style={{color:C.slate,fontSize:13.5,maxWidth:520,lineHeight:1.55}}>{FISCAL_ADDON.note}</div>
-              </div>
-            </div>
-            <div style={{textAlign:"right"}}>
-              <div style={{fontFamily:F.display,fontSize:25,fontWeight:600,color:C.indigo}}>{money(FISCAL_ADDON.price)}<span style={{fontSize:13,color:C.faint}}>{FISCAL_ADDON.per}</span></div>
-              <div style={{fontSize:11.5,color:C.faint}}>contratação anual</div>
-            </div>
           </div>
         </div>
       </section>
@@ -692,7 +655,7 @@ function VidahPrime() {
             <p style={{color:"rgba(255,255,255,0.92)",fontSize:17,marginBottom:36,lineHeight:1.6,maxWidth:560,margin:"0 auto 36px"}}>Cadastre-se, valide seu registro e comece a atender em um espaço à altura dos seus pacientes.</p>
             <div style={{display:"flex",gap:14,justifyContent:"center",flexWrap:"wrap"}}>
               <button onClick={()=>startBook()} style={{background:"#fff",color:C.tealDeep,border:"none",borderRadius:12,padding:"16px 34px",fontSize:16,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:9}}>Começar cadastro <Ic n="arrowR" s={18} c={C.tealDeep}/></button>
-              <a href="https://wa.me/5515999999999" target="_blank" rel="noopener noreferrer" style={{background:"rgba(255,255,255,0.16)",color:"#fff",border:"1px solid rgba(255,255,255,0.35)",textDecoration:"none",borderRadius:12,padding:"16px 30px",fontSize:16,fontWeight:600,display:"inline-flex",alignItems:"center",gap:9}}><Ic n="whatsapp" s={19} c="#fff"/> WhatsApp</a>
+              <a href="https://wa.me/5515997418555" target="_blank" rel="noopener noreferrer" style={{background:"rgba(255,255,255,0.16)",color:"#fff",border:"1px solid rgba(255,255,255,0.35)",textDecoration:"none",borderRadius:12,padding:"16px 30px",fontSize:16,fontWeight:600,display:"inline-flex",alignItems:"center",gap:9}}><Ic n="whatsapp" s={19} c="#fff"/> WhatsApp</a>
             </div>
           </div>
         </div>
@@ -707,7 +670,7 @@ function VidahPrime() {
               <p style={{fontSize:13,lineHeight:1.8}}>Coworking premium para profissionais da saúde. Estrutura completa, cadastro validado e preços que cabem no orçamento.</p>
               <div style={{display:"flex",gap:10,marginTop:20}}>
                 <a href="https://instagram.com/vidahprime" target="_blank" rel="noreferrer" style={{width:38,height:38,borderRadius:10,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}><Ic n="instagram" s={18} c="#fff"/></a>
-                <a href="https://wa.me/5515999999999" target="_blank" rel="noreferrer" style={{width:38,height:38,borderRadius:10,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}><Ic n="whatsapp" s={18} c="#fff"/></a>
+                <a href="https://wa.me/5515997418555" target="_blank" rel="noreferrer" style={{width:38,height:38,borderRadius:10,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}><Ic n="whatsapp" s={18} c="#fff"/></a>
               </div>
             </div>
             <div>
@@ -720,10 +683,10 @@ function VidahPrime() {
             </div>
             <div>
               <h4 style={{color:"#fff",fontWeight:600,marginBottom:14,fontSize:14}}>Contato</h4>
-              <div style={{fontSize:13,marginBottom:10,display:"flex",gap:8,alignItems:"center"}}><Ic n="pin" s={15} c="#7FE3D0"/> São Paulo/SP</div>
-              <div style={{fontSize:13,marginBottom:10,display:"flex",gap:8,alignItems:"center"}}><Ic n="phone" s={15} c="#7FE3D0"/> (15) 99999-9999</div>
-              <div style={{fontSize:13,marginBottom:10,display:"flex",gap:8,alignItems:"center"}}><Ic n="mail" s={15} c="#7FE3D0"/> contato@vidahprime.com.br</div>
-              <div style={{fontSize:13,display:"flex",gap:8,alignItems:"center"}}><Ic n="clock" s={15} c="#7FE3D0"/> Seg-Sáb: 7h–21h</div>
+              <div style={{fontSize:13,marginBottom:10,display:"flex",gap:8,alignItems:"flex-start"}}><Ic n="pin" s={15} c="#7FE3D0"/> Av. General Osório, 736 · Sorocaba – SP · CEP 18060-502</div>
+              <div style={{fontSize:13,marginBottom:10,display:"flex",gap:8,alignItems:"center"}}><Ic n="phone" s={15} c="#7FE3D0"/> (15) 3211-0277</div>
+              <div style={{fontSize:13,marginBottom:10,display:"flex",gap:8,alignItems:"center"}}><Ic n="whatsapp" s={15} c="#7FE3D0"/> (15) 99741-8555</div>
+              <div style={{fontSize:13,display:"flex",gap:8,alignItems:"center"}}><Ic n="mail" s={15} c="#7FE3D0"/> contato@vidahprime.com.br</div>
             </div>
           </div>
           <div style={{borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:28,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:12,fontSize:12}}>
@@ -778,26 +741,26 @@ function VidahPrime() {
           <div style={{background:C.white,borderRadius:20,padding:28,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
             <div style={{display:"grid",gridTemplateColumns:"130px 1fr",gap:16,marginBottom:16}}>
               <div>
-                <label style={{display:"block",fontSize:12.5,fontWeight:600,color:C.ink,marginBottom:7}}>Conselho</label>
+                <label style={{display:"block",fontSize:12.5,fontWeight:600,color:C.ink,marginBottom:7}}>Conselho / área</label>
                 <select value={obForm.councilType} onChange={e=>setObForm(f=>({...f,councilType:e.target.value}))} style={{width:"100%",padding:"12px 10px",border:`1.5px solid ${C.line}`,borderRadius:11,fontSize:14,fontFamily:F.body,background:"#fff",boxSizing:"border-box"}}>
-                  {["CRP","CRM","CRO","CRN","CREFITO","CRFa","Outro"].map(o=><option key={o}>{o}</option>)}
+                  {["CRP","CRM","CRO","CRN","CREFITO","CRFa","Estética","Bem-estar","Outro"].map(o=><option key={o}>{o}</option>)}
                 </select>
               </div>
               <div>
-                <label style={{display:"block",fontSize:12.5,fontWeight:600,color:C.ink,marginBottom:7}}>Número do registro</label>
+                <label style={{display:"block",fontSize:12.5,fontWeight:600,color:C.ink,marginBottom:7}}>Número do registro <span style={{color:C.faint,fontWeight:400}}>(quando aplicável)</span></label>
                 <input value={obForm.council} placeholder="Ex.: 06/123456" onChange={e=>setObForm(f=>({...f,council:e.target.value}))} style={{width:"100%",padding:"12px 14px",border:`1.5px solid ${C.line}`,borderRadius:11,fontSize:14,fontFamily:F.body,boxSizing:"border-box"}}/>
               </div>
             </div>
-            <label style={{display:"block",fontSize:12.5,fontWeight:600,color:C.ink,marginBottom:7}}>Especialidade</label>
-            <input value={obForm.spec} placeholder="Ex.: Psicologia clínica" onChange={e=>setObForm(f=>({...f,spec:e.target.value}))} style={{width:"100%",padding:"12px 14px",border:`1.5px solid ${C.line}`,borderRadius:11,fontSize:14,fontFamily:F.body,boxSizing:"border-box"}}/>
-            <div style={{marginTop:16,fontSize:12.5,color:C.slate,display:"flex",gap:8,alignItems:"center"}}><Ic n="searchCheck" s={17} c={C.teal}/> Vamos conferir esse registro no conselho antes de liberar seu acesso.</div>
+            <label style={{display:"block",fontSize:12.5,fontWeight:600,color:C.ink,marginBottom:7}}>Área de atuação</label>
+            <input value={obForm.spec} placeholder="Ex.: Nutrição, Psicologia, Estética..." onChange={e=>setObForm(f=>({...f,spec:e.target.value}))} style={{width:"100%",padding:"12px 14px",border:`1.5px solid ${C.line}`,borderRadius:11,fontSize:14,fontFamily:F.body,boxSizing:"border-box"}}/>
+            <div style={{marginTop:16,fontSize:12.5,color:C.slate,display:"flex",gap:8,alignItems:"center"}}><Ic n="searchCheck" s={17} c={C.teal}/> Conferimos seus dados e documentos antes de liberar o acesso.</div>
           </div>
         )}
 
         {obStep===2 && (
           <div style={{background:C.white,borderRadius:20,padding:28,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
-            <p style={{color:C.slate,fontSize:14,marginBottom:20}}>Envie os 3 documentos. Ficam guardados com segurança e são usados só para validação.</p>
-            {[{k:"carteira",l:"Carteirinha do conselho",d:"Frente e verso, legível"},{k:"endereco",l:"Comprovante de endereço",d:"Últimos 90 dias"},{k:"pessoal",l:"Documento pessoal",d:"RG ou CNH"}].map(({k,l,d})=>(
+            <p style={{color:C.slate,fontSize:14,marginBottom:20}}>Envie seus documentos. Ficam guardados com segurança e são usados só para conferência.</p>
+            {[{k:"carteira",l:"Documento profissional",d:"Carteira do conselho ou diploma/certificado (quando aplicável)"},{k:"endereco",l:"Comprovante de endereço",d:"Últimos 90 dias"},{k:"pessoal",l:"Documento pessoal",d:"RG ou CNH"}].map(({k,l,d})=>(
               <div key={k} onClick={()=>setObForm(f=>({...f,docs:{...f.docs,[k]:!f.docs[k]}}))} style={{display:"flex",alignItems:"center",gap:14,padding:"16px 18px",border:`1.5px solid ${obForm.docs[k]?C.teal:C.line}`,borderRadius:14,marginBottom:12,cursor:"pointer",background:obForm.docs[k]?C.tealSoft:"#fff",transition:"all .15s"}}>
                 <div style={{width:44,height:44,borderRadius:12,background:obForm.docs[k]?C.teal:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={obForm.docs[k]?"check":"download"} s={20} c={obForm.docs[k]?"#fff":C.slate}/></div>
                 <div style={{flex:1}}>
@@ -819,9 +782,9 @@ function VidahPrime() {
               <p style={{marginBottom:8}}><strong>1. Objeto.</strong> Licença temporária e não exclusiva de uso das salas da Vidah Prime, destinadas a atendimentos na área da saúde.</p>
               <p style={{marginBottom:8}}><strong>2. Responsabilidade sanitária.</strong> O CONTRATANTE se responsabiliza por manter regular sua situação junto ao conselho de classe e à vigilância sanitária para a sua especialidade, isentando a Vidah Prime de responsabilidade por atos profissionais.</p>
               <p style={{marginBottom:8}}><strong>3. Responsabilidade civil.</strong> O CONTRATANTE responde civil e profissionalmente pelos serviços que presta a seus pacientes dentro do espaço.</p>
-              <p style={{marginBottom:8}}><strong>4. Regras de uso.</strong> Reservas com antecedência, respeito ao intervalo de higienização de 30 minutos e às regras de cancelamento (24h).</p>
-              <p style={{marginBottom:8}}><strong>5. Cancelamento.</strong> Cancelamentos com +24h devolvem a hora ao saldo. Com -24h, a hora é consumida.</p>
-              <p><strong>6. Foro.</strong> Comarca de São Paulo/SP.</p>
+              <p style={{marginBottom:8}}><strong>4. Regras de uso.</strong> Reservas com antecedência, respeito ao tempo de higienização entre atendimentos e às regras de cancelamento (48h).</p>
+              <p style={{marginBottom:8}}><strong>5. Cancelamento.</strong> Cancelamentos com +48h de antecedência viram crédito válido por 60 dias. Com -48h, o valor é considerado utilizado.</p>
+              <p><strong>6. Foro.</strong> Comarca de Sorocaba/SP.</p>
             </div>
             <label style={{display:"flex",gap:12,alignItems:"flex-start",marginTop:18,cursor:"pointer"}}>
               <input type="checkbox" checked={obForm.accept} onChange={e=>setObForm(f=>({...f,accept:e.target.checked}))} style={{marginTop:3,width:18,height:18,accentColor:C.teal}}/>
@@ -834,9 +797,9 @@ function VidahPrime() {
           <div style={{background:C.white,borderRadius:20,padding:"40px 30px",boxShadow:SH.sm,border:`1px solid ${C.line}`,textAlign:"center"}}>
             <div style={{width:80,height:80,borderRadius:"50%",background:C.lilacSoft,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 18px"}}><Ic n="searchCheck" s={38} c={C.indigo}/></div>
             <h2 style={{fontFamily:F.display,fontSize:24,fontWeight:600,color:C.ink,marginBottom:10}}>Cadastro em análise</h2>
-            <p style={{color:C.slate,fontSize:15,lineHeight:1.7,maxWidth:440,margin:"0 auto 24px"}}>Recebemos seus dados e documentos. Nossa equipe vai validar seu registro <strong style={{color:C.ink}}>{obForm.councilType} {obForm.council}</strong> no conselho. Você recebe um aviso por e-mail e WhatsApp assim que for aprovado.</p>
+            <p style={{color:C.slate,fontSize:15,lineHeight:1.7,maxWidth:440,margin:"0 auto 24px"}}>Recebemos seus dados e documentos. Nossa equipe vai conferir seu cadastro e sua área de atuação <strong style={{color:C.ink}}>({obForm.spec||"—"})</strong>. Você recebe um aviso por e-mail e WhatsApp assim que for aprovado.</p>
             <div style={{background:C.bg,borderRadius:14,padding:18,maxWidth:440,margin:"0 auto 24px",textAlign:"left",border:`1px solid ${C.line}`}}>
-              {[["Dados enviados",true],["Documentos recebidos (3)",true],["Contrato assinado",true],["Validação no conselho",false]].map(([l,done])=>(
+              {[["Dados enviados",true],["Documentos recebidos",true],["Contrato assinado",true],["Verificação da documentação",false]].map(([l,done])=>(
                 <div key={l} style={{display:"flex",alignItems:"center",gap:10,fontSize:13.5,padding:"6px 0",color:done?C.tealDeep:C.slate}}>
                   <Ic n={done?"checkCircle":"clock"} s={18} c={done?C.teal:C.faint}/> {l}
                 </div>
@@ -908,7 +871,7 @@ function VidahPrime() {
                     <p style={{color:C.slate,fontSize:12,marginBottom:10,lineHeight:1.5}}>{r.desc}</p>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                       <span style={{color:C.teal,fontWeight:700,fontSize:15}}>{money(r.priceHora)}<span style={{fontWeight:400,color:C.faint,fontSize:12}}>/h</span></span>
-                      <span style={{display:"inline-flex",alignItems:"center",gap:4,color:C.slate,fontSize:12}}><Ic n="star" s={13} c={C.coral}/> {r.rating.toFixed(1)}</span>
+                      <span style={{background:C.tealSoft,color:C.tealDeep,fontSize:10.5,fontWeight:700,padding:"3px 9px",borderRadius:100}}>{r.cat}</span>
                     </div>
                   </div>
                 </div>
@@ -926,7 +889,7 @@ function VidahPrime() {
             <p style={{color:C.slate,marginBottom:20,fontSize:15}}>Como você quer usar o espaço?</p>
             <div style={{display:"grid",gap:14}}>
               {USE_MODES.map(m=>(
-                <div key={m.id} onClick={()=>{setUseMode(m); if(m.id!=="pacote")setPkg(null);}} style={{background:useMode?.id===m.id?C.tealSoft:C.white,border:`2px solid ${useMode?.id===m.id?C.teal:C.line}`,borderRadius:16,padding:"18px 22px",cursor:"pointer",transition:"all .2s"}}>
+                <div key={m.id} onClick={()=>setUseMode(m)} style={{background:useMode?.id===m.id?C.tealSoft:C.white,border:`2px solid ${useMode?.id===m.id?C.teal:C.line}`,borderRadius:16,padding:"18px 22px",cursor:"pointer",transition:"all .2s"}}>
                   <div style={{display:"flex",alignItems:"center",gap:14}}>
                     <div style={{width:46,height:46,borderRadius:12,background:useMode?.id===m.id?"#fff":C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={m.icon} s={24} c={C.indigo}/></div>
                     <div style={{flex:1}}>
@@ -935,20 +898,6 @@ function VidahPrime() {
                     </div>
                     <div style={{width:22,height:22,borderRadius:"50%",border:`2px solid ${useMode?.id===m.id?C.teal:C.line}`,background:useMode?.id===m.id?C.teal:"transparent",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{useMode?.id===m.id&&<Ic n="check" s={13} c="#fff"/>}</div>
                   </div>
-                  {m.id==="pacote" && useMode?.id==="pacote" && (
-                    <div style={{marginTop:16,display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10}}>
-                      {PACKAGES.map(p=>{
-                        const rate = room?room.priceHora*(1-p.off):0;
-                        return (
-                          <div key={p.id} onClick={e=>{e.stopPropagation();setPkg(p);}} style={{border:`2px solid ${pkg?.id===p.id?C.coral:C.line}`,borderRadius:12,padding:"12px 10px",textAlign:"center",cursor:"pointer",background:pkg?.id===p.id?C.coralSoft:"#fff"}}>
-                            <div style={{fontFamily:F.display,fontSize:20,fontWeight:600,color:C.ink}}>{p.hours}h</div>
-                            <div style={{fontSize:11.5,color:C.tealDeep,fontWeight:600}}>{money(rate)}/h</div>
-                            <div style={{fontSize:10,color:C.faint,marginTop:2}}>-{Math.round(p.off*100)}%</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -958,7 +907,7 @@ function VidahPrime() {
         {step===2 && (
           <div>
             <div style={{background:C.coralSoft,borderRadius:12,padding:"12px 16px",marginBottom:20,fontSize:13,color:C.coralDeep,display:"flex",gap:9,alignItems:"center"}}>
-              <Ic n="clock" s={18} c={C.coralDeep}/> Reserve com pelo menos 2 dias de antecedência. Após cada atendimento, 30 min são bloqueados para higienização.
+              <Ic n="clock" s={18} c={C.coralDeep}/> Reserve com antecedência. A cada troca de profissional, reservamos um tempo para higienização e preparo da sala.
             </div>
             <div style={{background:C.white,borderRadius:20,padding:24,marginBottom:20,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
@@ -985,7 +934,7 @@ function VidahPrime() {
                   return <button key={t} disabled={busy} onClick={()=>!busy&&togTime(t)} style={{padding:"11px 6px",border:"none",borderRadius:11,background:busy?C.lineSoft:(sel?C.teal:C.bg),color:busy?C.faint:(sel?"#fff":C.ink),fontWeight:sel?700:500,fontSize:13.5,cursor:busy?"not-allowed":"pointer",position:"relative"}}>
                     {t}
                     {busy&&<div style={{position:"absolute",bottom:2,left:0,right:0,textAlign:"center",fontSize:8,color:C.faint}}>Ocupado</div>}
-                    {sel&&<div style={{position:"absolute",bottom:2,left:0,right:0,textAlign:"center",fontSize:8,color:"rgba(255,255,255,0.85)"}}>+30min limpeza</div>}
+                    {sel&&<div style={{position:"absolute",bottom:2,left:0,right:0,textAlign:"center",fontSize:8,color:"rgba(255,255,255,0.85)"}}>+ limpeza</div>}
                   </button>;
                 })}
               </div>
@@ -998,18 +947,14 @@ function VidahPrime() {
           <div>
             <div style={{background:C.white,borderRadius:20,padding:24,marginBottom:20,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
               <h3 style={{fontFamily:F.display,fontWeight:600,color:C.ink,marginBottom:18,fontSize:18}}>Resumo da reserva</h3>
-              {[["Sala",room?.name],["Modo",useMode?.name + (pkg?` (${pkg.hours}h)`:"")],["Datas",`${dates.length} dia${dates.length!==1?"s":""}`],["Horários",times.join(", ")||"—"],["Valor da hora",money(hourRate())]].map(([k,v])=>(
+              {[["Sala",room?.name],["Forma de uso",useMode?.name],["Datas",`${dates.length} dia${dates.length!==1?"s":""}`],["Horários",times.join(", ")||"—"],["Valor da hora",money(hourRate())]].map(([k,v])=>(
                 <div key={k} style={{display:"flex",justifyContent:"space-between",fontSize:14,marginBottom:11}}><span style={{color:C.slate}}>{k}</span><span style={{fontWeight:600,color:C.ink}}>{v}</span></div>
               ))}
-              <label style={{display:"flex",gap:10,alignItems:"center",padding:"12px 0",borderTop:`1px solid ${C.line}`,cursor:"pointer"}}>
-                <input type="checkbox" checked={fiscal} onChange={e=>setFiscal(e.target.checked)} style={{width:17,height:17,accentColor:C.indigo}}/>
-                <span style={{fontSize:13,color:C.ink}}>Adicionar endereço fiscal <span style={{color:C.slate}}>(+{money(FISCAL_ADDON.price)}/mês, anual)</span></span>
-              </label>
               <div style={{borderTop:`1px solid ${C.line}`,paddingTop:14,display:"flex",justifyContent:"space-between",alignItems:"baseline"}}>
                 <span style={{fontWeight:700,color:C.ink,fontSize:16}}>Total</span>
                 <span style={{fontFamily:F.display,fontSize:27,fontWeight:600,color:C.teal}}>{money(bookingTotal())}</span>
               </div>
-              {useMode?.id==="pacote"&&pkg&&<div style={{marginTop:8,fontSize:12,color:C.tealDeep,textAlign:"right"}}>Após confirmar, {pkg.hours}h entram no seu saldo (válidas por 30 dias).</div>}
+              {useMode?.id==="fixo"&&<div style={{marginTop:8,fontSize:12,color:C.tealDeep,textAlign:"right"}}>Período Fixo: valor mensal, com a sala reservada toda semana no mesmo horário.</div>}
             </div>
             <div style={{background:C.white,borderRadius:20,padding:24,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
               <h3 style={{fontFamily:F.display,fontWeight:600,color:C.ink,marginBottom:6,fontSize:18}}>Forma de pagamento</h3>
@@ -1095,7 +1040,7 @@ function VidahPrime() {
 
       <div style={{maxWidth:1000,margin:"0 auto",padding:"24px 20px 80px"}}>
         <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:14,marginBottom:24}}>
-          {[{l:"Saldo de horas",v:`${hourBalance}h`,s:"válidas por 30 dias",c:C.teal,ic:"wallet"},{l:"Reservas ativas",v:myBookings.length,s:"próximos atendimentos",c:C.indigo,ic:"cal"},{l:"Endereço fiscal",v:myBookings.some(b=>b.fiscal)?"Ativo":"Inativo",s:"para CNPJ",c:C.lilac,ic:"pin"},{l:"Contrato",v:"Assinado",s:"validade jurídica",c:C.coral,ic:"doc"}].map(s=>(
+          {[{l:"Reservas ativas",v:myBookings.length,s:"próximos atendimentos",c:C.indigo,ic:"cal"},{l:"Cadastro",v:"Verificado",s:"acesso liberado",c:C.teal,ic:"userCheck"},{l:"Forma de uso",v:lastBooking?.useMode?.name||"—",s:"última reserva",c:C.lilac,ic:"sliders"},{l:"Contrato",v:"Assinado",s:"validade jurídica",c:C.coral,ic:"doc"}].map(s=>(
             <div key={s.l} style={{background:C.white,borderRadius:16,padding:"18px 18px",boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
               <div style={{width:40,height:40,borderRadius:11,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:12}}><Ic n={s.ic} s={20} c={s.c}/></div>
               <div style={{fontFamily:F.display,fontSize:23,fontWeight:600,color:s.c}}>{s.v}</div>
@@ -1106,7 +1051,7 @@ function VidahPrime() {
         </div>
 
         <div style={{display:"flex",gap:4,marginBottom:22,background:"#fff",borderRadius:12,padding:4,width:"fit-content",boxShadow:SH.sm,flexWrap:"wrap",border:`1px solid ${C.line}`}}>
-          {[["resumo","Minhas reservas"],["contrato","Contrato"],["fiscal","Endereço fiscal"],["dados","Meus dados"]].map(([t,l])=>(
+          {[["resumo","Minhas reservas"],["contrato","Contrato"],["dados","Meus dados"]].map(([t,l])=>(
             <button key={t} onClick={()=>setClientTab(t)} style={{padding:"9px 18px",border:"none",borderRadius:9,background:clientTab===t?C.indigo:"transparent",color:clientTab===t?"#fff":C.slate,fontWeight:clientTab===t?700:500,cursor:"pointer",fontSize:13}}>{l}</button>
           ))}
         </div>
@@ -1130,7 +1075,7 @@ function VidahPrime() {
                 </div>
                 <div style={{display:"flex",gap:8}}>
                   <button style={{...btnGhost,padding:"8px 12px",fontSize:12,display:"flex",gap:6,alignItems:"center"}}><Ic n="download" s={15} c={C.ink}/> Comprovante</button>
-                  <button onClick={()=>{ if(confirm("Cancelar com menos de 24h consome a hora. Deseja cancelar?")) setMyBookings(p=>p.filter(x=>x.id!==b.id)); }} style={{background:C.coralSoft,border:`1px solid ${C.coral}`,borderRadius:11,padding:"8px 12px",fontSize:12,cursor:"pointer",color:C.coralDeep,fontWeight:600}}>Cancelar</button>
+                  <button onClick={()=>{ if(confirm("Cancelamentos com menos de 48h não geram crédito. Deseja cancelar?")) setMyBookings(p=>p.filter(x=>x.id!==b.id)); }} style={{background:C.coralSoft,border:`1px solid ${C.coral}`,borderRadius:11,padding:"8px 12px",fontSize:12,cursor:"pointer",color:C.coralDeep,fontWeight:600}}>Cancelar</button>
                 </div>
               </div>
             ))}
@@ -1148,7 +1093,7 @@ function VidahPrime() {
             </div>
             <div id="contract-print" style={{border:`1px solid ${C.line}`,borderRadius:12,padding:20,fontSize:12.5,lineHeight:1.9,color:C.ink,background:C.bg}}>
               <p style={{marginBottom:8}}><strong>Contratante:</strong> {account?.name} · CPF {account?.cpf} · {account?.councilType} {account?.council}</p>
-              <p style={{marginBottom:8}}><strong>Contratada:</strong> Vidah Prime Coworking Ltda. · São Paulo/SP</p>
+              <p style={{marginBottom:8}}><strong>Contratada:</strong> Vidah Prime · Av. General Osório, 736 · Sorocaba/SP</p>
               <p style={{marginBottom:8}}>Licença não exclusiva de uso das salas para atendimentos na área da saúde, com responsabilidade sanitária e civil do contratante, respeito ao intervalo de higienização e às regras de cancelamento.</p>
               <p style={{fontSize:11,color:C.faint,marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:10}}>Assinado digitalmente · Hash: {account?.id}9F3A2C · MP 2.200-2/2001 e Lei 14.063/2020</p>
             </div>
@@ -1156,33 +1101,10 @@ function VidahPrime() {
           </div>
         )}
 
-        {clientTab==="fiscal" && (
-          <div style={{background:C.white,borderRadius:18,padding:28,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
-            <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:600,color:C.ink,marginBottom:6}}>Endereço fiscal</h3>
-            <p style={{color:C.slate,fontSize:13.5,lineHeight:1.7,marginBottom:20}}>{FISCAL_ADDON.note}</p>
-            {myBookings.some(b=>b.fiscal) ? (
-              <div>
-                <div style={{background:C.tealSoft,borderRadius:12,padding:16,marginBottom:16,color:C.tealDeep,fontSize:13.5,fontWeight:600,display:"flex",gap:8,alignItems:"center"}}><Ic n="checkCircle" s={17} c={C.tealDeep}/> Endereço fiscal ativo · Rua Exemplo, 123 – São Paulo/SP</div>
-                <div style={{fontSize:12.5,color:C.slate,marginBottom:8,fontWeight:600}}>Documentos de apoio (para abrir CNPJ):</div>
-                {["Comprovante de endereço da Vidah Prime","IPTU do imóvel","Contrato de licença"].map(d=>(
-                  <div key={d} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 0",borderBottom:`1px solid ${C.line}`,fontSize:13}}>
-                    <span style={{color:C.ink,display:"flex",gap:8,alignItems:"center"}}><Ic n="doc" s={16} c={C.slate}/> {d}</span><span style={{color:C.teal,cursor:"pointer",fontWeight:600,display:"flex",gap:5,alignItems:"center"}}><Ic n="download" s={15} c={C.teal}/> Baixar</span>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div style={{background:C.lilacSoft,borderRadius:12,padding:20,display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
-                <div style={{fontSize:13.5,color:C.indigo}}>Você ainda não contratou o endereço fiscal.</div>
-                <button style={{background:C.indigo,color:"#fff",border:"none",borderRadius:11,padding:"11px 22px",fontWeight:700,fontSize:14,cursor:"pointer"}}>Contratar por {money(FISCAL_ADDON.price)}/mês</button>
-              </div>
-            )}
-          </div>
-        )}
-
         {clientTab==="dados" && (
           <div style={{background:C.white,borderRadius:18,padding:28,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
             <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:600,color:C.ink,marginBottom:18}}>Meus dados</h3>
-            {[["Nome",account?.name],["E-mail",account?.email],["WhatsApp",account?.phone],["CPF",account?.cpf],["Registro",`${account?.councilType} ${account?.council}`],["Especialidade",account?.spec]].map(([k,v])=>(
+            {[["Nome",account?.name],["E-mail",account?.email],["WhatsApp",account?.phone],["CPF",account?.cpf],["Conselho / área",`${account?.councilType||""} ${account?.council||""}`.trim()],["Área de atuação",account?.spec]].map(([k,v])=>(
               <div key={k} style={{display:"flex",justifyContent:"space-between",padding:"12px 0",borderBottom:`1px solid ${C.line}`,fontSize:14}}><span style={{color:C.slate}}>{k}</span><span style={{fontWeight:600,color:C.ink}}>{v||"—"}</span></div>
             ))}
             <button onClick={()=>{setAccount(null);go("landing");}} style={{marginTop:20,...btnGhost,padding:"11px 22px",fontSize:14,color:C.slate,display:"inline-flex",gap:8,alignItems:"center"}}><Ic n="logout" s={17} c={C.slate}/> Sair da conta</button>
@@ -1238,7 +1160,7 @@ function VidahPrime() {
           </div>
 
           <div style={{display:"flex",gap:4,marginBottom:22,background:"#fff",borderRadius:12,padding:4,width:"fit-content",boxShadow:SH.sm,flexWrap:"wrap",border:`1px solid ${C.line}`}}>
-            {[["aprovacoes","Aprovações"],["agenda","Agenda"],["salas","Salas"],["horarios","Abrir / fechar"]].map(([t,l])=>(
+            {[["aprovacoes","Aprovações"],["agenda","Agenda"],["salas","Salas"],["profissionais","Profissionais"],["horarios","Abrir / fechar"]].map(([t,l])=>(
               <button key={t} onClick={()=>setAdminTab(t)} style={{padding:"9px 18px",border:"none",borderRadius:9,background:adminTab===t?C.indigo:"transparent",color:adminTab===t?"#fff":C.slate,fontWeight:adminTab===t?700:500,cursor:"pointer",fontSize:13}}>{l}{t==="aprovacoes"&&signups.length>0?` (${signups.length})`:""}</button>
             ))}
           </div>
@@ -1321,12 +1243,35 @@ function VidahPrime() {
             </div>
           )}
 
+          {adminTab==="profissionais" && (
+            <div>
+              <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:600,color:C.ink,marginBottom:6}}>Profissionais cadastrados</h3>
+              <p style={{color:C.slate,fontSize:13.5,marginBottom:18}}>Se um profissional começar a dar problema, você pode bloquear o acesso dele. Bloqueado, ele não consegue mais reservar salas.</p>
+              {TESTIMONIALS.map(t=>{
+                const blocked = blockedProfs.includes(t.name);
+                return (
+                  <div key={t.name} style={{background:C.white,borderRadius:16,padding:"16px 22px",display:"flex",alignItems:"center",gap:16,boxShadow:SH.sm,marginBottom:10,border:`1px solid ${C.line}`,borderLeft:`4px solid ${blocked?C.coral:C.teal}`,flexWrap:"wrap"}}>
+                    <div style={{width:42,height:42,borderRadius:"50%",background:blocked?C.coralSoft:`linear-gradient(135deg,${C.indigo},${C.teal})`,display:"flex",alignItems:"center",justifyContent:"center",color:blocked?C.coralDeep:"#fff",fontWeight:700,fontSize:13}}>{t.av}</div>
+                    <div style={{flex:1,minWidth:160}}>
+                      <div style={{fontWeight:700,color:C.ink,fontSize:14}}>{t.name}</div>
+                      <div style={{color:C.slate,fontSize:12}}>{t.role}</div>
+                    </div>
+                    <span style={{padding:"4px 12px",borderRadius:100,fontSize:11,fontWeight:700,background:blocked?C.coralSoft:C.tealSoft,color:blocked?C.coralDeep:C.tealDeep}}>{blocked?"Bloqueado":"Ativo"}</span>
+                    <button onClick={()=>setBlockedProfs(p=>blocked?p.filter(x=>x!==t.name):[...p,t.name])} style={{background:blocked?C.teal:"#FFF5F5",border:blocked?"none":`1px solid ${C.coral}`,color:blocked?"#fff":C.coralDeep,borderRadius:10,padding:"8px 14px",fontSize:12.5,cursor:"pointer",fontWeight:600,display:"flex",gap:6,alignItems:"center"}}>
+                      <Ic n={blocked?"checkCircle":"lock"} s={15} c={blocked?"#fff":C.coralDeep}/> {blocked?"Reativar acesso":"Bloquear acesso"}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
           {adminTab==="horarios" && (
             <div>
               <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:600,color:C.ink,marginBottom:6}}>Abrir e fechar horários</h3>
               <p style={{color:C.slate,fontSize:13.5,marginBottom:18}}>Bloqueie ou libere um horário manualmente. Útil quando alguém chega na recepção ou uma sala precisa ficar reservada.</p>
               <div style={{background:C.white,borderRadius:16,padding:24,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
-                <div style={{fontSize:13,fontWeight:600,color:C.ink,marginBottom:14}}>Sala Clínica 3 · hoje</div>
+                <div style={{fontSize:13,fontWeight:600,color:C.ink,marginBottom:14}}>Sala Clínica 07 · hoje</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(96px,1fr))",gap:8}}>
                   {TIMES.map(t=>{
                     const blocked = blockedSlots.includes(t) || BUSY.includes(t);
@@ -1376,7 +1321,7 @@ function VidahPrime() {
           </div>
           {msgs.length===1 && leadStage===0 && (
             <div style={{padding:"8px 14px",display:"flex",gap:6,flexWrap:"wrap",borderTop:`1px solid ${C.line}`,flexShrink:0}}>
-              {["Ver salas","Quais os planos?","Como me cadastro?","Falar com a equipe"].map(q=>(
+              {["Ver salas","Formas de uso","Como me cadastro?","Falar com a equipe"].map(q=>(
                 <button key={q} onClick={()=>sendChat(q)} style={{background:C.tealSoft,color:C.tealDeep,border:"none",borderRadius:100,padding:"6px 12px",fontSize:11.5,fontWeight:600,cursor:"pointer"}}>{q}</button>
               ))}
             </div>
@@ -1422,7 +1367,7 @@ function VidahPrime() {
       {view==="admin" && Admin()}
       {Chat()}
       {!chatOpen && (
-        <a href="https://wa.me/5515999999999" target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:96,right:24,zIndex:999,width:50,height:50,borderRadius:"50%",background:"#25D366",cursor:"pointer",boxShadow:"0 8px 22px rgba(37,211,102,0.42)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}>
+        <a href="https://wa.me/5515997418555" target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:96,right:24,zIndex:999,width:50,height:50,borderRadius:"50%",background:"#25D366",cursor:"pointer",boxShadow:"0 8px 22px rgba(37,211,102,0.42)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}>
           <Ic n="whatsapp" s={24} c="#fff"/>
         </a>
       )}
