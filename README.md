@@ -1,15 +1,46 @@
-# Mock Vidah Prime
+# Vidah Prime
 
-Protótipo de alta fidelidade do coworking da saúde **Vidah Prime**.
+Sistema de reservas do coworking **Vidah Prime** (saúde, bem-estar e estética · Sorocaba/SP).
 
-Página única em `index.html` (React via CDN, sem build). Serve estático no Vercel.
+Stack: **Next.js 14** (App Router, SSR/SEO) + **Supabase** (Postgres, Auth, RLS, Storage).
 
-## Fluxos incluídos
-- Landing (estilo Livance, valores por último)
-- Cadastro obrigatório antes de reservar (dados, conselho, 3 documentos, contrato assinado 1x, análise e aprovação)
-- Reserva (sala, modo de uso avulso/pacote/período, agendamento com limpeza de 30min, pagamento)
-- Área do cliente (saldo de horas, reservas, contrato, endereço fiscal, dados)
-- Painel administrativo (aprovações com validação no conselho, agenda, salas, abrir/fechar horários)
-- Assistente Vi (dúvidas + captação de lead com score)
+## Rodar localmente
 
-> Marca (logo/cores), fotos e vídeo das salas são provisórios até o material oficial.
+```bash
+npm install
+npm run dev          # http://localhost:3000
+```
+
+Precisa de um `.env.local` (não versionado) com:
+
+```
+NEXT_PUBLIC_SUPABASE_URL=...
+NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
+SUPABASE_SERVICE_ROLE_KEY=...        # só servidor
+PGHOST=... PGPORT=5432 PGDATABASE=postgres PGUSER=postgres PGPASSWORD=...
+```
+
+As variáveis públicas (`NEXT_PUBLIC_*`) também ficam em `.env.production` (versionado, seguras por RLS).
+
+## Banco de dados
+
+```bash
+npm run db:apply supabase/migrations/0001_init.sql
+npm run db:apply supabase/migrations/0002_seed_rooms.sql
+npm run db:admin        # cria o usuário admin
+```
+
+Testes de integração contra o banco real: `node scripts/e2e.js`.
+
+## Deploy (Vercel)
+
+O projeto builda sozinho no Vercel a partir da `main`. As variáveis públicas vêm do `.env.production`.
+**Adicione no Vercel** apenas a variável de servidor `SUPABASE_SERVICE_ROLE_KEY` (necessária para o cadastro de novos profissionais).
+
+## Estrutura
+
+- `app/` — páginas (landing, /entrar, /cadastro, /conta, /reservar, /admin) e rotas de API
+- `components/` — UI (marca, Landing, Onboarding, Booking, Conta, Admin, Chat)
+- `lib/` — clientes Supabase e conteúdo
+- `supabase/migrations/` — schema e seed
+- `_prototype/` — protótipo estático original (referência)
