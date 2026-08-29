@@ -1,18 +1,53 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { C, SH, F, Ic, btnGhost } from "./brand";
 
 const MODE = { avulso:"Hora Avulsa", flex:"Período Flex", fixo:"Período Fixo" };
 const STATUS = { pending:"Em análise", approved:"Aprovado", rejected:"Recusado", blocked:"Bloqueado", incomplete:"Incompleto" };
+const TIMES = ["07:00","08:00","09:00","10:00","11:00","13:00","14:00","15:00","16:00","17:00","18:00","19:00"];
+const MONTHS = ["Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro"];
 const fmtT = (iso) => new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+const overlaps = (aS,aE,bS,bE) => new Date(aS).getTime() < bE && new Date(aE).getTime() > bS;
 
 export default function Admin({ pendings, professionals, todaySlots, rooms }) {
   const router = useRouter();
   const supabase = createClient();
   const [tab, setTab] = useState("aprovacoes");
   const [busy, setBusy] = useState(null);
+  // abrir/fechar
+  const availRooms = rooms.filter(r=>r.available);
+  const [hRoom, setHRoom] = useState(availRooms[0]?.id || null);
+  const [hDate, setHDate] = useState(() => { const d=new Date(); return {y:d.getFullYear(),m:d.getMonth(),d:d.getDate()}; });
+  const [booked, setBooked] = useState([]);   // ["09:00"]
+  const [blocks, setBlocks] = useState([]);    // [{id,start_at,end_at}]
+  const [hBusy, setHBusy] = useState(false);
+
+  const loadSlots = async () => {
+    if (!hRoom) return;
+    setHBusy(true);
+    const dayS = new Date(hDate.y,hDate.m,hDate.d,0,0,0).toISOString();
+    const dayE = new Date(hDate.y,hDate.m,hDate.d,23,59,59).toISOString();
+    const [{ data: bs }, { data: sb }] = await Promise.all([
+      supabase.from("booking_slots").select("start_at,cleaning_until").eq("room_id",hRoom).eq("status","reserved").gte("start_at",dayS).lt("start_at",dayE),
+      supabase.from("slot_blocks").select("id,start_at,end_at").eq("room_id",hRoom).gte("start_at",dayS).lt("start_at",dayE),
+    ]);
+    const bk = TIMES.filter(t => { const h=parseInt(t); const s=new Date(hDate.y,hDate.m,hDate.d,h).getTime(), e=new Date(hDate.y,hDate.m,hDate.d,h+1).getTime(); return (bs||[]).some(x=>overlaps(x.start_at,x.cleaning_until,s,e)); });
+    setBooked(bk); setBlocks(sb||[]); setHBusy(false);
+  };
+  useEffect(() => { if (tab==="horarios") loadSlots(); /* eslint-disable-next-line */ }, [tab, hRoom, hDate]);
+
+  const toggleSlot = async (t) => {
+    if (booked.includes(t)) return;
+    const h = parseInt(t);
+    const s = new Date(hDate.y,hDate.m,hDate.d,h,0,0), e = new Date(hDate.y,hDate.m,hDate.d,h+1,0,0);
+    const existing = blocks.find(b => overlaps(b.start_at,b.end_at,s.getTime(),e.getTime()));
+    if (existing) { await supabase.from("slot_blocks").delete().eq("id",existing.id); }
+    else { await supabase.from("slot_blocks").insert({ room_id:hRoom, start_at:s.toISOString(), end_at:e.toISOString(), reason:"Fechado pela recepção" }); }
+    loadSlots();
+  };
+  const isBlocked = (t) => { const h=parseInt(t); const s=new Date(hDate.y,hDate.m,hDate.d,h).getTime(), e=new Date(hDate.y,hDate.m,hDate.d,h+1).getTime(); return blocks.some(b=>overlaps(b.start_at,b.end_at,s,e)); };
 
   const setStatus = async (id, status) => {
     setBusy(id);
@@ -36,7 +71,7 @@ export default function Admin({ pendings, professionals, todaySlots, rooms }) {
     { l:"Profissionais", v:professionals.length, c:C.indigo, ic:"users" },
     { l:"Salas ativas", v:rooms.filter(r=>r.available).length, c:C.lilac, ic:"building" },
   ];
-  const tabs = [["aprovacoes",`Aprovações${pendings.length?` (${pendings.length})`:""}`],["agenda","Agenda"],["salas","Salas"],["profissionais","Profissionais"]];
+  const tabs = [["aprovacoes",`Aprovações${pendings.length?` (${pendings.length})`:""}`],["agenda","Agenda"],["salas","Salas"],["profissionais","Profissionais"],["horarios","Abrir / fechar"]];
 
   return (
     <div style={{minHeight:"calc(100vh - 64px)",background:C.bg}}>
@@ -144,6 +179,41 @@ export default function Admin({ pendings, professionals, todaySlots, rooms }) {
                 </div>
               );
             })}
+          </div>
+        )}
+
+        {tab==="horarios" && (
+          <div>
+            <h2 style={{fontFamily:F.display,fontSize:20,fontWeight:600,color:C.ink,marginBottom:6}}>Abrir e fechar horários</h2>
+            <p style={{color:C.slate,fontSize:13.5,marginBottom:18}}>Feche um horário para que ninguém consiga reservar (ex.: alguém chegou na recepção ou a sala precisa ficar livre). Horários ocupados por reservas não podem ser alterados aqui.</p>
+            <div style={{background:"#fff",borderRadius:16,padding:24,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
+              <div style={{display:"flex",gap:12,flexWrap:"wrap",marginBottom:18,alignItems:"flex-end"}}>
+                <div>
+                  <label style={{display:"block",fontSize:12,fontWeight:600,color:C.ink,marginBottom:6}}>Sala</label>
+                  <select value={hRoom||""} onChange={e=>setHRoom(Number(e.target.value))} style={{padding:"10px 12px",border:`1.5px solid ${C.line}`,borderRadius:10,fontSize:14,background:"#fff"}}>
+                    {availRooms.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <label style={{display:"block",fontSize:12,fontWeight:600,color:C.ink,marginBottom:6}}>Data</label>
+                  <input type="date" value={`${hDate.y}-${String(hDate.m+1).padStart(2,"0")}-${String(hDate.d).padStart(2,"0")}`} onChange={e=>{const [y,m,d]=e.target.value.split("-").map(Number); setHDate({y,m:m-1,d});}} style={{padding:"10px 12px",border:`1.5px solid ${C.line}`,borderRadius:10,fontSize:14}}/>
+                </div>
+                {hBusy && <Ic n="spinner" s={20} c={C.teal} className="vp-spin" style={{marginBottom:8}}/>}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(96px,1fr))",gap:8}}>
+                {TIMES.map(t=>{
+                  const bk=booked.includes(t), bl=isBlocked(t);
+                  const bg = bk?C.lineSoft : bl?C.coralSoft : C.tealSoft;
+                  const col = bk?C.faint : bl?C.coralDeep : C.tealDeep;
+                  return (
+                    <button key={t} onClick={()=>toggleSlot(t)} disabled={bk} style={{padding:"12px 6px",border:"none",borderRadius:11,background:bg,color:col,fontWeight:600,fontSize:13,cursor:bk?"not-allowed":"pointer"}}>
+                      {t}<div style={{fontSize:9.5,marginTop:3,opacity:0.85}}>{bk?"Ocupado":bl?"Fechado":"Aberto"}</div>
+                    </button>
+                  );
+                })}
+              </div>
+              <div style={{marginTop:16,fontSize:12,color:C.slate}}>Clique para alternar entre aberto e fechado. Horários fechados não aparecem para os profissionais reservarem.</div>
+            </div>
           </div>
         )}
       </div>
