@@ -44,6 +44,9 @@ export async function POST(request) {
 
     return NextResponse.json({ mode: "zapsign", signUrl: doc.signUrl, docToken: doc.docToken });
   } catch (e) {
-    return NextResponse.json({ error: "Falha ao criar a assinatura: " + (e.message || "erro") }, { status: 502 });
+    // ZapSign indisponível ou sem Plano de API: não bloqueia o cadastro,
+    // cai no aceite eletrônico interno (também com validade jurídica).
+    console.error("[signature/create] fallback para aceite interno:", e.message);
+    return NextResponse.json({ mode: "local", fallback: true });
   }
 }
