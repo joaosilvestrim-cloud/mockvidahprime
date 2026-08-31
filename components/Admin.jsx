@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { C, SH, F, money, Ic, btnGhost } from "./brand";
 
@@ -21,6 +22,8 @@ const CAT_OPTS = ["Clínica","Conecta","Odontológica","Meeting","Estética","Be
 
 export default function Admin({ pendings, professionals, todaySlots, rooms, settings }) {
   const supabase = createClient();
+  const router = useRouter();
+  const logout = async () => { await supabase.auth.signOut(); router.push("/"); router.refresh(); };
   const [tab, setTab] = useState("aprovacoes");
   const [toast, setToast] = useState(null);
   const [confirmBox, setConfirmBox] = useState(null);
@@ -260,10 +263,13 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
   return (
     <div style={{minHeight:"calc(100vh - 64px)",background:C.bg}}>
       {/* boas-vindas */}
-      <div style={{background:`linear-gradient(140deg, ${C.navyDeep}, ${C.indigo})`,color:"#fff",padding:"22px 22px"}}>
-        <div style={{maxWidth:1120,margin:"0 auto"}}>
-          <div style={{fontFamily:F.body,fontWeight:800,fontSize:18}}>Vidah<span style={{color:"#7FE3D0",fontWeight:600}}> prime</span> · Administração</div>
-          <div style={{fontSize:13.5,opacity:0.85,marginTop:2}}>Bem-vindo(a). Aqui você aprova cadastros, acompanha a agenda e cuida das salas.</div>
+      <div style={{background:`linear-gradient(140deg, ${C.plumDeep}, ${C.plum})`,color:"#fff",padding:"22px 22px"}}>
+        <div style={{maxWidth:1120,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",gap:16,flexWrap:"wrap"}}>
+          <div>
+            <div style={{fontFamily:F.body,fontWeight:800,fontSize:18}}>Vidah<span style={{color:"#7FE3D0",fontWeight:600}}> prime</span> · Administração</div>
+            <div style={{fontSize:13.5,opacity:0.85,marginTop:2}}>Bem-vindo(a). Aqui você aprova cadastros, acompanha a agenda e cuida das salas.</div>
+          </div>
+          <button onClick={logout} style={{background:"rgba(255,255,255,0.16)",border:"1px solid rgba(255,255,255,0.3)",color:"#fff",borderRadius:10,padding:"10px 16px",cursor:"pointer",fontSize:13.5,fontWeight:600,display:"flex",gap:7,alignItems:"center"}}><Ic n="logout" s={17} c="#fff"/> Sair</button>
         </div>
       </div>
 
