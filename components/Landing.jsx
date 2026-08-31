@@ -169,7 +169,7 @@ export default function Landing({ rooms = [], account = null }) {
               <div key={r.id} className="reveal-fade" style={{background:C.white,borderRadius:22,overflow:"hidden",boxShadow:SH.md,border:`1px solid ${C.line}`,transitionDelay:`${i*70}ms`}}>
                 <RoomTile room={r}>
                   <span style={{position:"absolute",top:14,left:14,background:"rgba(255,255,255,0.9)",color:r.accent,fontSize:11.5,fontWeight:700,padding:"5px 12px",borderRadius:100}}>{r.category}</span>
-                  <span style={{position:"absolute",top:14,right:14,display:"inline-flex",alignItems:"center",gap:5,background:"rgba(0,0,0,0.28)",color:"#fff",fontSize:10.5,fontWeight:600,padding:"5px 10px",borderRadius:100}}><Ic n="eye" s={13} c="#fff"/> foto a inserir</span>
+                  {!r.image_url && <span style={{position:"absolute",top:14,right:14,display:"inline-flex",alignItems:"center",gap:5,background:"rgba(0,0,0,0.28)",color:"#fff",fontSize:10.5,fontWeight:600,padding:"5px 10px",borderRadius:100}}><Ic n="eye" s={13} c="#fff"/> foto a inserir</span>}
                   {!r.available&&<div style={{position:"absolute",inset:0,background:"rgba(26,23,67,0.55)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{background:C.coral,color:"#fff",padding:"7px 18px",borderRadius:100,fontSize:13,fontWeight:700}}>Em breve</span></div>}
                 </RoomTile>
                 <div style={{padding:24}}>

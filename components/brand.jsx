@@ -129,6 +129,15 @@ export function Eyebrow({ children }) {
 
 export function RoomTile({ room, h=170, ics=46, children }) {
   const accent = room.accent || C.indigo;
+  if (room.image_url) {
+    return (
+      <div style={{height:h,position:"relative",overflow:"hidden",background:C.navyDeep}}>
+        <img src={room.image_url} alt={room.name} loading="lazy" style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover"}}/>
+        <div style={{position:"absolute",inset:0,background:"linear-gradient(180deg, rgba(26,23,67,0.35) 0%, rgba(26,23,67,0) 45%)"}}/>
+        {children}
+      </div>
+    );
+  }
   return (
     <div style={{height:h,position:"relative",overflow:"hidden",background:`linear-gradient(140deg, ${accent} 0%, ${C.navyDeep} 130%)`,display:"flex",alignItems:"center",justifyContent:"center"}}>
       <svg viewBox="0 0 300 170" preserveAspectRatio="none" style={{position:"absolute",inset:0,width:"100%",height:"100%"}}>

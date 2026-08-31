@@ -28,7 +28,7 @@ export default async function AdminPage() {
     .eq("status","reserved").gte("start_at", start.toISOString()).lt("start_at", end.toISOString())
     .order("start_at", { ascending: true });
 
-  const { data: rooms } = await supabase.from("rooms").select("id,slug,name,category,description,price_hour,available,accent,icon,specialties,sort").order("sort");
+  const { data: rooms } = await supabase.from("rooms").select("id,slug,name,category,description,price_hour,available,accent,icon,specialties,image_url,sort").order("sort");
   const { data: settingsRows } = await supabase.from("settings").select("key,value");
   const settings = Object.fromEntries((settingsRows || []).map(s => [s.key, s.value]));
 

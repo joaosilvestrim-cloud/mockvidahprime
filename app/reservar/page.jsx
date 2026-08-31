@@ -16,7 +16,7 @@ export default async function ReservarPage() {
 
   const { data: rooms } = await supabase
     .from("rooms")
-    .select("id,name,category,description,price_hour,available,accent,icon")
+    .select("id,name,category,description,price_hour,available,accent,icon,image_url")
     .eq("available", true)
     .order("sort", { ascending: true });
 

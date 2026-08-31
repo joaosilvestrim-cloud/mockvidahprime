@@ -8,7 +8,7 @@ export default async function Home() {
 
   const { data: rooms } = await supabase
     .from("rooms")
-    .select("id,slug,name,category,description,price_hour,available,accent,icon,specialties")
+    .select("id,slug,name,category,description,price_hour,available,accent,icon,specialties,image_url")
     .order("sort", { ascending: true });
 
   let account = null;

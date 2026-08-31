@@ -92,9 +92,21 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
 
   // ---------- SALAS (gerenciar) ----------
   const [editor, setEditor] = useState(null); // null | {room fields}
-  const blank = () => ({ id:null, name:"", category:"Clínica", description:"", price_hour:"", icon:"pulse", accent:"#14A08B", available:true, specialties:[], specInput:"" });
+  const [imgBusy, setImgBusy] = useState(false);
+  const blank = () => ({ id:null, name:"", category:"Clínica", description:"", price_hour:"", icon:"pulse", accent:"#14A08B", available:true, specialties:[], image_url:null });
   const openNew = () => setEditor(blank());
-  const openEdit = (r) => setEditor({ ...r, price_hour:String(r.price_hour||""), specInput:"" });
+  const openEdit = (r) => setEditor({ ...r, price_hour:String(r.price_hour||"") });
+  const uploadRoomImage = async (file) => {
+    if (!file) return;
+    setImgBusy(true);
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+    const path = `covers/${Date.now()}-${Math.random().toString(36).slice(2,7)}.${ext}`;
+    const { error } = await supabase.storage.from("rooms").upload(path, file, { upsert: true, contentType: file.type || "image/jpeg" });
+    if (error) { setImgBusy(false); notify("Erro no upload da foto: " + error.message, "err"); return; }
+    const { data } = supabase.storage.from("rooms").getPublicUrl(path);
+    setEditor(e => ({ ...e, image_url: data.publicUrl }));
+    setImgBusy(false);
+  };
   const saveRoom = async () => {
     const e = editor;
     if (!e.name.trim()) { notify("Dê um nome para a sala.", "err"); return; }
@@ -103,7 +115,7 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
     setBusy(true);
     const payload = {
       name:e.name.trim(), category:e.category, description:e.description||"", price_hour:price,
-      icon:e.icon, accent:e.accent, available:e.available, specialties:e.specialties||[],
+      icon:e.icon, accent:e.accent, available:e.available, specialties:e.specialties||[], image_url:e.image_url||null,
     };
     let error, saved;
     if (e.id) {
@@ -131,6 +143,37 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
       notify("Sala excluída.");
     },
   });
+
+  // ---------- PAGAMENTOS ----------
+  const [payments, setPayments] = useState([]);
+  const [payLoading, setPayLoading] = useState(false);
+  const [payEnabled, setPayEnabled] = useState((settings?.payments_enabled || "false") === "true");
+  const [interReady, setInterReady] = useState(null); // null=desconhecido, bool
+  const loadPayments = async () => {
+    setPayLoading(true);
+    const { data } = await supabase.from("payments")
+      .select("id,amount,method,status,created_at,paid_at,provider,bookings(use_mode,rooms(name)),profiles(full_name)")
+      .order("created_at", { ascending: false }).limit(100);
+    setPayments(data || []); setPayLoading(false);
+    try { const r = await fetch("/api/payments/status"); const j = await r.json(); setInterReady(!!j.configured); } catch { setInterReady(false); }
+  };
+  useEffect(() => { if (tab==="pagamentos") loadPayments(); /* eslint-disable-next-line */ }, [tab]);
+  const markPaid = (p) => ask({
+    title: "Confirmar recebimento?", body: `Marcar o pagamento de ${money(p.amount)} de ${p.profiles?.full_name||"—"} como PAGO.`, okLabel: "Sim, recebi",
+    onOk: async () => {
+      const { error } = await supabase.from("payments").update({ status:"paid", paid_at:new Date().toISOString() }).eq("id", p.id);
+      if (error) { notify("Erro: " + error.message, "err"); return; }
+      setPayments(l => l.map(x => x.id===p.id ? { ...x, status:"paid", paid_at:new Date().toISOString() } : x));
+      notify("Pagamento marcado como recebido.");
+    },
+  });
+  const togglePayEnabled = async () => {
+    const next = !payEnabled;
+    const { error } = await supabase.from("settings").upsert({ key:"payments_enabled", value: next?"true":"false" }, { onConflict:"key" });
+    if (error) { notify("Erro: " + error.message, "err"); return; }
+    setPayEnabled(next);
+    notify(next ? "Cobrança automática ligada." : "Cobrança automática desligada.");
+  };
 
   // ---------- AJUSTES ----------
   const [cfg, setCfg] = useState({
@@ -210,6 +253,7 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
     ["salas","Salas","building", 0],
     ["profissionais","Profissionais","users", 0],
     ["horarios","Abrir e fechar","clock", 0],
+    ["pagamentos","Pagamentos","wallet", 0],
     ["ajustes","Ajustes","sliders", 0],
   ];
 
@@ -388,6 +432,61 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
           </div>
         )}
 
+        {/* ---------- PAGAMENTOS ---------- */}
+        {tab==="pagamentos" && (
+          <div>
+            <h2 style={{fontFamily:F.display,fontSize:21,fontWeight:600,color:C.ink,marginBottom:4}}>Pagamentos</h2>
+            <p style={{color:C.slate,fontSize:14,marginBottom:18}}>Acompanhe o que foi pago e o que está pendente. Enquanto a cobrança automática do Inter não está ligada, você marca aqui o que já recebeu.</p>
+
+            {/* status da integração */}
+            <div style={{background:"#fff",borderRadius:16,padding:"18px 20px",boxShadow:SH.sm,border:`1px solid ${C.line}`,marginBottom:18,display:"flex",gap:16,alignItems:"center",flexWrap:"wrap"}}>
+              <div style={{width:46,height:46,borderRadius:12,background:payEnabled?C.tealSoft:C.lilacSoft,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="wallet" s={24} c={payEnabled?C.tealDeep:C.indigo}/></div>
+              <div style={{flex:1,minWidth:200}}>
+                <div style={{fontWeight:700,color:C.ink,fontSize:15,display:"flex",alignItems:"center",gap:8}}>Integração com o banco Inter
+                  {interReady!==null && <span style={{fontSize:11,fontWeight:700,padding:"2px 9px",borderRadius:100,background:interReady?"#E4F6EC":C.lilacSoft,color:interReady?"#1F9D57":C.indigo}}>{interReady?"Conectado":"Aguardando credenciais"}</span>}
+                </div>
+                <div style={{color:C.slate,fontSize:13}}>{interReady ? (payEnabled?"Cobrança Pix automática ligada.":"Conectado. Ligue a cobrança automática quando quiser.") : "Assim que a conta Inter Empresas estiver pronta e as credenciais forem inseridas, a cobrança Pix passa a ser automática. Por enquanto, a reconciliação é manual (abaixo)."}</div>
+              </div>
+              <button onClick={togglePayEnabled} disabled={!interReady} title={interReady?"":"Só terá efeito depois que a API do Inter for conectada"} style={{display:"flex",alignItems:"center",gap:8,background:payEnabled?C.teal:"#fff",color:payEnabled?"#fff":C.slate,border:`1.5px solid ${payEnabled?C.teal:C.line}`,borderRadius:100,padding:"8px 14px",fontSize:13,fontWeight:600,cursor:interReady?"pointer":"not-allowed",opacity:interReady?1:0.5}}>
+                <span style={{width:14,height:14,borderRadius:"50%",background:payEnabled?"#fff":C.faint}}/> {payEnabled?"Ligada":"Desligada"}
+              </button>
+            </div>
+
+            {/* resumo */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:12,marginBottom:18}}>
+              {[
+                { l:"Recebido", v:money(payments.filter(p=>p.status==="paid").reduce((s,p)=>s+Number(p.amount),0)), c:"#1F9D57" },
+                { l:"Pendente", v:money(payments.filter(p=>p.status==="pending").reduce((s,p)=>s+Number(p.amount),0)), c:C.partial||"#B8791F" },
+                { l:"Total de cobranças", v:payments.length, c:C.indigo },
+              ].map(s=>(
+                <div key={s.l} style={{background:"#fff",borderRadius:16,padding:16,boxShadow:SH.sm,border:`1px solid ${C.line}`}}>
+                  <div style={{fontFamily:F.display,fontSize:22,fontWeight:600,color:s.c}}>{s.v}</div>
+                  <div style={{fontSize:11.5,color:C.faint,marginTop:4,textTransform:"uppercase",fontWeight:700,letterSpacing:1}}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+
+            {payLoading ? (
+              <div style={{display:"flex",alignItems:"center",gap:8,color:C.slate,fontSize:14}}><Ic n="spinner" s={18} c={C.teal} className="vp-spin"/> Carregando...</div>
+            ) : payments.length===0 ? (
+              <EmptyCard ic="wallet" title="Sem pagamentos ainda" text="Quando houver reservas, as cobranças aparecem aqui." />
+            ) : payments.map(p=>{
+              const st = { pending:{l:"Aguardando",bg:"#FBF0DC",c:"#B8791F"}, paid:{l:"Recebido",bg:"#E4F6EC",c:"#1F9D57"}, refunded:{l:"Estornado",bg:C.lilacSoft,c:C.indigo}, cancelled:{l:"Cancelado",bg:C.lineSoft,c:C.slate}, failed:{l:"Falhou",bg:C.coralSoft,c:C.coralDeep} }[p.status] || {l:p.status,bg:C.lineSoft,c:C.slate};
+              return (
+                <div key={p.id} style={{background:"#fff",borderRadius:16,padding:"16px 20px",display:"flex",alignItems:"center",gap:16,boxShadow:SH.sm,marginBottom:10,border:`1px solid ${C.line}`,flexWrap:"wrap"}}>
+                  <div style={{flex:1,minWidth:180}}>
+                    <div style={{fontWeight:700,color:C.ink,fontSize:15}}>{p.profiles?.full_name||"—"}</div>
+                    <div style={{color:C.slate,fontSize:12.5}}>{p.bookings?.rooms?.name||"—"} · {p.method==="pix"?"Pix":"Cartão"} · {fmtDate(p.created_at)}</div>
+                  </div>
+                  <div style={{fontFamily:F.display,fontSize:18,fontWeight:600,color:C.ink}}>{money(p.amount)}</div>
+                  <span style={{padding:"5px 12px",borderRadius:100,fontSize:11.5,fontWeight:700,background:st.bg,color:st.c}}>{st.l}</span>
+                  {p.status==="pending" && <button onClick={()=>markPaid(p)} style={{background:C.teal,color:"#fff",border:"none",borderRadius:10,padding:"9px 14px",fontSize:12.5,cursor:"pointer",fontWeight:600,display:"flex",gap:6,alignItems:"center"}}><Ic n="check" s={15} c="#fff"/> Marcar como pago</button>}
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {/* ---------- AJUSTES ---------- */}
         {tab==="ajustes" && (
           <div style={{maxWidth:560}}>
@@ -480,6 +579,21 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
           <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:26,maxWidth:520,width:"100%",boxShadow:SH.xl}}>
             <h3 style={{fontFamily:F.display,fontSize:20,fontWeight:600,color:C.ink,marginBottom:18}}>{editor.id?"Editar sala":"Nova sala"}</h3>
             <div style={{display:"grid",gap:16}}>
+              <div>
+                <label style={LB}>Foto da sala</label>
+                <div style={{position:"relative",height:170,borderRadius:14,overflow:"hidden",border:`1.5px dashed ${C.line}`,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                  {editor.image_url ? <img src={editor.image_url} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/> :
+                    <div style={{textAlign:"center",color:C.faint}}><Ic n="upload" s={26} c={C.faint}/><div style={{fontSize:13,marginTop:6}}>Nenhuma foto ainda</div></div>}
+                  {imgBusy && <div style={{position:"absolute",inset:0,background:"rgba(255,255,255,0.7)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="spinner" s={26} c={C.teal} className="vp-spin"/></div>}
+                </div>
+                <div style={{display:"flex",gap:10,marginTop:10}}>
+                  <label style={{...btnGhost,padding:"9px 14px",fontSize:13,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:7}}>
+                    <Ic n="upload" s={16} c={C.ink}/> {editor.image_url?"Trocar foto":"Enviar foto"}
+                    <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>uploadRoomImage(e.target.files?.[0])}/>
+                  </label>
+                  {editor.image_url && <button onClick={()=>setEditor({...editor,image_url:null})} style={{background:"#FFF5F5",border:`1px solid ${C.coral}`,color:C.coralDeep,borderRadius:10,padding:"9px 14px",fontSize:13,cursor:"pointer"}}>Remover foto</button>}
+                </div>
+              </div>
               <div><label style={LB}>Nome da sala</label><input value={editor.name} onChange={e=>setEditor({...editor,name:e.target.value})} placeholder="Ex.: Sala Clínica 08" style={IN}/></div>
               <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
                 <div><label style={LB}>Tipo</label>
