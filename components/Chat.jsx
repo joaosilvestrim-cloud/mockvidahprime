@@ -1,102 +1,125 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
 import { C, SH, F, Ic, btnPrimary } from "./brand";
+import ViAvatar from "./ViAvatar";
 import { WHATSAPP } from "@/lib/content";
 
-const HELLO = "Olá! Sou a Vi, assistente da Vidah Prime.\n\nPosso ajudar com salas, formas de uso, cadastro, cancelamento e pagamento. E se quiser, conecto você com a equipe.\n\nComo posso ajudar?";
-
-function reply(u) {
-  const t = u.toLowerCase();
-  if (/humano|equipe|falar com|atendente|contato/.test(t)) return "__LEAD__";
-  if (t.includes("sala")) return "Temos a Sala Clínica (com maca, para consultas, procedimentos e estética), a Sala Conecta (escuta e conexão), a Sala Odontológica (consultório completo) e a Sala Meeting (reuniões e palestras). Quer ver as salas?";
-  if (/incluí|inclui|estrutura|recep|café|cafe|espera|internet|estacion/.test(t)) return "A reserva inclui recepcionista para acolher seus pacientes, sala de espera com TV e música, café, água e chá, ar-condicionado, internet, limpeza e manutenção, e central de esterilização conforme a sala. Você chega e atende; a Vidah cuida da estrutura.";
-  if (/visit|conhecer|antes de reservar|ver o espaço|ver o espaco/.test(t)) return "Claro! Você pode agendar uma visita para conhecer o espaço e tirar dúvidas antes da primeira reserva. Quer que eu chame a equipe para marcar?";
-  if (/plano|preç|preco|valor|period|flex|fixo|avuls/.test(t)) return "Você pode reservar de 3 jeitos: Hora Avulsa (paga o que usa), Período Flex (manhã ou tarde, sem dia fixo) e Período Fixo (mesmo dia e horário toda semana). O valor depende da sala.";
-  if (/mais de um|vários|varios|mudar|alterar|trocar/.test(t)) return "Sim, você pode concentrar vários atendimentos no período reservado e, no Período Flex, escolher dias diferentes a cada semana. Alterações de Período Fixo dependem da disponibilidade da agenda.";
-  if (/cadastr|document|aprov/.test(t)) return "O cadastro é único: você envia um documento que comprove sua atuação profissional (quando aplicável), comprovante de endereço e documento pessoal, assina o contrato uma vez e, após a aprovação da equipe, já pode reservar.";
-  if (t.includes("cancel")) return "O valor não volta em dinheiro, vira crédito. Com mais de 48h de antecedência o crédito vale por até 60 dias. Com menos de 48h, o valor é considerado utilizado.";
-  if (/pag|pix|cart/.test(t)) return "Aceitamos Pix e cartão de crédito. O pagamento é feito no momento da reserva e a confirmação sai na hora.";
-  if (/quem|profiss|estetic|massot|podolog|posso atender/.test(t)) return "A Vidah é para saúde, estética e bem-estar: médicos, dentistas, psicólogos, nutricionistas, fisioterapeutas, esteticistas, massoterapeutas, terapeutas e mais. Você mantém sua autonomia e sua relação com seus pacientes.";
-  return "Posso ajudar com salas, formas de uso, o que está incluído, visita, cadastro, cancelamento e pagamento. Se preferir, falo com a equipe pra você.";
-}
+const HELLO = "Oi! Eu sou a Vi, da Vidah Prime 🌿\n\nPosso te ajudar com as salas, valores, como reservar, o que está incluído e cancelamento. Como posso ajudar?";
+const QUICK = ["Ver as salas", "Quanto custa?", "Como faço para reservar?", "Falar com a equipe"];
 
 export default function Chat({ onReservar }) {
   const [open, setOpen] = useState(false);
   const [full, setFull] = useState(false);
   const [msgs, setMsgs] = useState([{ role: "assistant", content: HELLO }]);
   const [input, setInput] = useState("");
+  const [typing, setTyping] = useState(false);
   const [lead, setLead] = useState(0);
+  const [nudge, setNudge] = useState(false);
   const end = useRef(null);
-  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, open]);
+
+  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs, typing, open]);
+  useEffect(() => {
+    if (open) { setNudge(false); return; }
+    const t = setTimeout(() => setNudge(true), 3500);
+    const t2 = setTimeout(() => setNudge(false), 12000);
+    return () => { clearTimeout(t); clearTimeout(t2); };
+  }, [open]);
 
   const push = (role, content) => setMsgs((p) => [...p, { role, content }]);
-  const send = (direct = null) => {
+
+  const startLead = () => { setLead(1); setTyping(false); push("assistant", "Claro! Vou te conectar com a equipe. Como é o seu nome? 😊"); };
+
+  const send = async (direct = null) => {
     const u = (direct || input).trim();
-    if (!u) return;
+    if (!u || typing) return;
     if (!direct) setInput("");
     push("user", u);
-    if (lead === 1) { setLead(2); setTimeout(() => push("assistant", `Prazer, ${u.split(" ")[0]}! Qual o melhor e-mail pra equipe te retornar?`), 400); return; }
-    if (lead === 2) { setLead(3); setTimeout(() => push("assistant", "Perfeito. Em uma frase, o que você procura?"), 400); return; }
+
+    // fluxo de captação (quando pediu falar com a equipe)
+    if (lead === 1) { setLead(2); setTimeout(() => push("assistant", `Prazer, ${u.split(" ")[0]}! Qual o melhor e-mail pra equipe te retornar?`), 350); return; }
+    if (lead === 2) { setLead(3); setTimeout(() => push("assistant", "Perfeito. Em uma frase, o que você procura? (ex.: 2 tardes por semana numa sala clínica)"), 350); return; }
     if (lead === 3) {
       setLead(4);
-      const score = Math.min(98, 60 + (u.length % 38));
-      setTimeout(() => push("assistant", `Tudo certo! Encaminhei seu contato para a equipe da Vidah Prime.\n\nScore do profissional: ${score}/100\n\nEnquanto isso, quer adiantar seu cadastro?`), 500);
+      setTimeout(() => push("assistant", "Tudo certo! ✅ Já avisei a equipe da Vidah Prime, logo entram em contato com você.\n\nSe quiser, você também pode falar direto no nosso WhatsApp. Ou já adiantar seu cadastro por aqui."), 400);
       return;
     }
-    setTimeout(() => {
-      const r = reply(u);
-      if (r === "__LEAD__") { setLead(1); push("assistant", "Claro! Vou te conectar com a equipe. Qual seu nome?"); }
-      else push("assistant", r);
-    }, 450);
+
+    // cérebro da Vi
+    setTyping(true);
+    try {
+      const history = [...msgs, { role: "user", content: u }].map((m) => ({ role: m.role, content: m.content }));
+      const res = await fetch("/api/vi", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ messages: history }) });
+      const j = await res.json();
+      setTyping(false);
+      if (j.lead) { startLead(); return; }
+      push("assistant", j.reply || "Desculpa, tive um probleminha aqui. Pode repetir? Ou fale com a gente no WhatsApp.");
+    } catch {
+      setTyping(false);
+      push("assistant", "Ops, minha conexão falhou 😅 Tenta de novo, ou fale com a equipe pelo WhatsApp.");
+    }
   };
 
   return (
     <>
       {!open && (
         <>
-          <button onClick={() => setOpen(true)} title="Falar com a Vi" style={{position:"fixed",bottom:24,right:24,zIndex:1000,width:60,height:60,borderRadius:"50%",background:`linear-gradient(140deg, ${C.indigo}, ${C.navy})`,border:"none",cursor:"pointer",boxShadow:"0 12px 32px rgba(38,35,94,0.4)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-            <Ic n="chat" s={26} c="#fff" />
+          {nudge && (
+            <div onClick={() => setOpen(true)} style={{ position: "fixed", bottom: 96, right: 92, zIndex: 1000, background: "#fff", color: C.ink, padding: "12px 16px", borderRadius: "16px 16px 4px 16px", boxShadow: SH.lg, maxWidth: 220, fontSize: 13.5, cursor: "pointer", border: `1px solid ${C.line}`, animation: "viNudge 12s ease forwards" }}>
+              <b>Oi! Sou a Vi</b> 👋<br />Posso te ajudar a reservar uma sala?
+            </div>
+          )}
+          <button onClick={() => setOpen(true)} title="Falar com a Vi" className="vi-bob" style={{ position: "fixed", bottom: 24, right: 24, zIndex: 1000, width: 64, height: 64, borderRadius: "50%", border: "3px solid #fff", cursor: "pointer", boxShadow: "0 12px 32px rgba(69,37,110,0.4)", padding: 0, overflow: "hidden", background: "none" }}>
+            <ViAvatar size={58} />
           </button>
-          <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer" style={{position:"fixed",bottom:96,right:24,zIndex:999,width:50,height:50,borderRadius:"50%",background:"#25D366",cursor:"pointer",boxShadow:"0 8px 22px rgba(37,211,102,0.42)",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none"}}>
-            <Ic n="whatsapp" s={24} c="#fff" />
+          <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noopener noreferrer" style={{ position: "fixed", bottom: 98, right: 30, zIndex: 999, width: 46, height: 46, borderRadius: "50%", background: "#25D366", cursor: "pointer", boxShadow: "0 8px 22px rgba(37,211,102,0.42)", display: "flex", alignItems: "center", justifyContent: "center", textDecoration: "none" }}>
+            <Ic n="whatsapp" s={22} c="#fff" />
           </a>
         </>
       )}
+
       {open && (
-        <div style={{position:"fixed",bottom:full?0:20,right:full?0:20,zIndex:1000,width:full?"100vw":370,height:full?"100dvh":560,background:"#fff",borderRadius:full?0:22,display:"flex",flexDirection:"column",boxShadow:SH.xl,overflow:"hidden",border:`1px solid ${C.line}`}}>
-          <div style={{background:`linear-gradient(140deg, ${C.navyDeep}, ${C.indigo})`,padding:"15px 18px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-            <div style={{width:38,height:38,borderRadius:"50%",background:"rgba(255,255,255,0.18)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="chat" s={19} c="#fff"/></div>
-            <div style={{flex:1}}>
-              <div style={{color:"#fff",fontWeight:700,fontSize:14}}>Vi · Assistente Vidah Prime</div>
-              <div style={{display:"flex",alignItems:"center",gap:6}}><div style={{width:7,height:7,background:"#7FE3D0",borderRadius:"50%"}}/><span style={{color:"rgba(255,255,255,0.72)",fontSize:11}}>Tira dúvidas e conecta com a equipe</span></div>
+        <div style={{ position: "fixed", bottom: full ? 0 : 20, right: full ? 0 : 20, zIndex: 1000, width: full ? "100vw" : 380, height: full ? "100dvh" : 580, background: "#fff", borderRadius: full ? 0 : 22, display: "flex", flexDirection: "column", boxShadow: SH.xl, overflow: "hidden", border: `1px solid ${C.line}` }}>
+          <div style={{ background: `linear-gradient(140deg, ${C.plumDeep}, ${C.plum} 60%, ${C.teal})`, padding: "14px 16px", display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+            <div style={{ width: 44, height: 44, borderRadius: "50%", overflow: "hidden", border: "2px solid rgba(255,255,255,0.5)", flexShrink: 0 }}><ViAvatar size={40} talking={typing} /></div>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: "#fff", fontWeight: 700, fontSize: 15 }}>Vi</div>
+              <div style={{ display: "flex", alignItems: "center", gap: 6 }}><span style={{ width: 7, height: 7, background: "#7FE3D0", borderRadius: "50%" }} /><span style={{ color: "rgba(255,255,255,0.8)", fontSize: 11.5 }}>Assistente da Vidah Prime</span></div>
             </div>
-            <button onClick={()=>setFull(f=>!f)} style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:8,padding:6,cursor:"pointer",display:"flex"}}><Ic n={full?"x":"plus"} s={15} c="#fff"/></button>
-            <button onClick={()=>{setOpen(false);setFull(false);}} style={{background:"rgba(255,255,255,0.15)",border:"none",borderRadius:8,padding:6,cursor:"pointer",display:"flex"}}><Ic n="x" s={15} c="#fff"/></button>
+            <button onClick={() => setFull((f) => !f)} style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><Ic n={full ? "x" : "plus"} s={15} c="#fff" /></button>
+            <button onClick={() => { setOpen(false); setFull(false); }} style={{ background: "rgba(255,255,255,0.15)", border: "none", borderRadius: 8, padding: 6, cursor: "pointer", display: "flex" }}><Ic n="x" s={15} c="#fff" /></button>
           </div>
-          <div style={{flex:1,overflowY:"auto",padding:14,display:"flex",flexDirection:"column",gap:10,background:C.bg}}>
-            {msgs.map((m,i)=>(
-              <div key={i} style={{display:"flex",gap:8,alignItems:"flex-start",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-                <div style={{width:30,height:30,borderRadius:"50%",flexShrink:0,background:m.role==="user"?C.coral:`linear-gradient(140deg,${C.indigo},${C.navy})`,display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n={m.role==="user"?"user":"chat"} s={15} c="#fff"/></div>
-                <div style={{maxWidth:"78%",padding:"10px 14px",borderRadius:m.role==="user"?"18px 4px 18px 18px":"4px 18px 18px 18px",background:m.role==="user"?C.indigo:"#fff",color:m.role==="user"?"#fff":C.ink,fontSize:13,lineHeight:1.65,whiteSpace:"pre-wrap",border:m.role==="user"?"none":`1px solid ${C.line}`}}>{m.content}</div>
+
+          <div style={{ flex: 1, overflowY: "auto", padding: 14, display: "flex", flexDirection: "column", gap: 10, background: C.bg }}>
+            {msgs.map((m, i) => (
+              <div key={i} style={{ display: "flex", gap: 8, alignItems: "flex-end", flexDirection: m.role === "user" ? "row-reverse" : "row" }}>
+                {m.role === "assistant" && <div style={{ width: 30, height: 30, borderRadius: "50%", overflow: "hidden", flexShrink: 0 }}><ViAvatar size={30} /></div>}
+                {m.role === "user" && <div style={{ width: 30, height: 30, borderRadius: "50%", flexShrink: 0, background: C.coral, display: "flex", alignItems: "center", justifyContent: "center" }}><Ic n="user" s={15} c="#fff" /></div>}
+                <div style={{ maxWidth: "78%", padding: "10px 14px", borderRadius: m.role === "user" ? "18px 4px 18px 18px" : "4px 18px 18px 18px", background: m.role === "user" ? C.plum : "#fff", color: m.role === "user" ? "#fff" : C.ink, fontSize: 13.5, lineHeight: 1.65, whiteSpace: "pre-wrap", border: m.role === "user" ? "none" : `1px solid ${C.line}` }}>{m.content}</div>
               </div>
             ))}
-            <div ref={end}/>
+            {typing && (
+              <div style={{ display: "flex", gap: 8, alignItems: "flex-end" }}>
+                <div style={{ width: 30, height: 30, borderRadius: "50%", overflow: "hidden" }}><ViAvatar size={30} talking /></div>
+                <div className="vi-typing" style={{ background: "#fff", border: `1px solid ${C.line}`, borderRadius: "4px 18px 18px 18px", padding: "12px 14px" }}><span /><span /><span /></div>
+              </div>
+            )}
+            <div ref={end} />
           </div>
-          {msgs.length===1 && lead===0 && (
-            <div style={{padding:"8px 14px",display:"flex",gap:6,flexWrap:"wrap",borderTop:`1px solid ${C.line}`,flexShrink:0}}>
-              {["Ver salas","Formas de uso","Como me cadastro?","Falar com a equipe"].map(q=>(
-                <button key={q} onClick={()=>send(q)} style={{background:C.tealSoft,color:C.tealDeep,border:"none",borderRadius:100,padding:"6px 12px",fontSize:11.5,fontWeight:600,cursor:"pointer"}}>{q}</button>
-              ))}
+
+          {msgs.length === 1 && lead === 0 && (
+            <div style={{ padding: "8px 14px", display: "flex", gap: 6, flexWrap: "wrap", borderTop: `1px solid ${C.line}`, flexShrink: 0 }}>
+              {QUICK.map((q) => <button key={q} onClick={() => send(q)} style={{ background: C.tealSoft, color: C.tealDeep, border: "none", borderRadius: 100, padding: "7px 13px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>{q}</button>)}
             </div>
           )}
-          {lead===4 && (
-            <div style={{padding:"8px 14px",borderTop:`1px solid ${C.line}`,flexShrink:0}}>
-              <button onClick={()=>{setOpen(false);onReservar&&onReservar();}} style={{width:"100%",...btnPrimary,padding:11,fontSize:13,display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>Adiantar meu cadastro <Ic n="arrowR" s={16} c="#fff"/></button>
+          {lead === 4 && (
+            <div style={{ padding: "8px 14px", display: "flex", gap: 8, borderTop: `1px solid ${C.line}`, flexShrink: 0 }}>
+              <a href={`https://wa.me/${WHATSAPP}`} target="_blank" rel="noreferrer" style={{ flex: 1, background: "#25D366", color: "#fff", borderRadius: 10, padding: 10, fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", justifyContent: "center", gap: 8, textDecoration: "none" }}><Ic n="whatsapp" s={16} c="#fff" /> WhatsApp</a>
+              <button onClick={() => { setOpen(false); onReservar && onReservar(); }} style={{ flex: 1, ...btnPrimary, padding: 10, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>Meu cadastro <Ic n="arrowR" s={16} c="#fff" /></button>
             </div>
           )}
-          <div style={{padding:"10px 14px",borderTop:`1px solid ${C.line}`,display:"flex",gap:8,flexShrink:0}}>
-            <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&!e.shiftKey&&send()} placeholder="Digite sua dúvida..." style={{flex:1,padding:"10px 13px",border:`1.5px solid ${C.line}`,borderRadius:11,fontSize:13,outline:"none",fontFamily:F.body}}/>
-            <button onClick={()=>send()} disabled={!input.trim()} style={{background:input.trim()?C.teal:C.line,border:"none",borderRadius:11,padding:"0 14px",cursor:input.trim()?"pointer":"not-allowed",display:"flex",alignItems:"center"}}><Ic n="arrowR" s={18} c="#fff"/></button>
+          <div style={{ padding: "10px 14px", borderTop: `1px solid ${C.line}`, display: "flex", gap: 8, flexShrink: 0 }}>
+            <input value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && send()} placeholder="Escreva sua mensagem..." style={{ flex: 1, padding: "11px 14px", border: `1.5px solid ${C.line}`, borderRadius: 12, fontSize: 13.5, outline: "none", fontFamily: F.body }} />
+            <button onClick={() => send()} disabled={!input.trim() || typing} style={{ background: input.trim() && !typing ? C.teal : C.line, border: "none", borderRadius: 12, padding: "0 15px", cursor: input.trim() && !typing ? "pointer" : "not-allowed", display: "flex", alignItems: "center" }}><Ic n="arrowR" s={18} c="#fff" /></button>
           </div>
         </div>
       )}

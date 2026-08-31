@@ -2,6 +2,7 @@
 import React from "react";
 
 export const C = {
+  plum:"#45256E", plumDeep:"#301848",
   indigo:"#4E4B8E", indigoDeep:"#35326B", navy:"#26235E", navyDeep:"#1A1743",
   teal:"#14A08B", tealDeep:"#0C7264", tealSoft:"#E4F5F1",
   coral:"#E86B5E", coralDeep:"#CC4D45", coralSoft:"#FCECE9",
@@ -90,7 +91,7 @@ export function LogoMark({ s=36 }) {
     <svg width={s} height={s} viewBox="0 0 40 40" aria-hidden="true" style={{flexShrink:0}}>
       <defs><clipPath id="lm"><circle cx="20" cy="20" r="20"/></clipPath></defs>
       <g clipPath="url(#lm)">
-        <rect width="40" height="40" fill="#4E4B8E"/>
+        <rect width="40" height="40" fill="#45256E"/>
         <g fill="none" stroke="#fff" strokeOpacity="0.3" strokeWidth="0.9">
           <path d="M1 11 Q20 1 39 11"/><path d="M1 15 Q20 5 39 15"/><path d="M1 19 Q20 9 39 19"/>
         </g>
@@ -102,11 +103,16 @@ export function LogoMark({ s=36 }) {
   );
 }
 
-export function Wordmark({ color=C.navy, size=20 }) {
+export function Wordmark({ color=C.plum, size=20, tagline=false }) {
   return (
-    <span style={{fontFamily:F.body,fontWeight:800,fontSize:size,letterSpacing:"-0.02em",lineHeight:1,color,whiteSpace:"nowrap"}}>
-      V<span style={{position:"relative",display:"inline-block"}}>ı<span style={{position:"absolute",top:-size*0.08,left:"50%",transform:"translateX(-50%)",width:size*0.15,height:size*0.15,borderRadius:"50%",background:C.coral}}/></span>dah
-      <span style={{color:C.teal,fontWeight:600}}> prime</span>
+    <span style={{display:"inline-flex",flexDirection:"column",lineHeight:1}}>
+      <span style={{whiteSpace:"nowrap",display:"inline-flex",alignItems:"baseline"}}>
+        <span style={{fontFamily:F.display,fontWeight:700,fontSize:size,letterSpacing:"-0.01em",color}}>
+          V<span style={{position:"relative",display:"inline-block"}}>ı<span style={{position:"absolute",top:-size*0.02,left:"50%",transform:"translateX(-50%)",width:size*0.16,height:size*0.16,borderRadius:"50%",background:C.coral}}/></span>dah
+        </span>
+        <span style={{fontFamily:F.body,fontWeight:800,fontSize:size*0.9,letterSpacing:"-0.01em",color:C.teal,marginLeft:size*0.16}}>prime</span>
+      </span>
+      {tagline && <span style={{fontFamily:F.body,fontStyle:"italic",fontWeight:500,fontSize:size*0.34,letterSpacing:".01em",color:color===C.plum?C.faint:"rgba(255,255,255,0.7)",marginTop:size*0.08,alignSelf:"flex-end",paddingRight:size*0.05}}>espaço de saúde</span>}
     </span>
   );
 }

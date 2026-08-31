@@ -34,7 +34,7 @@ export default function Landing({ rooms = [], account = null }) {
       {/* NAV */}
       <nav style={{position:"fixed",top:0,left:0,right:0,zIndex:200,height:66,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 22px",background:scrolled?"rgba(255,255,255,0.9)":"transparent",backdropFilter:scrolled?"blur(18px)":"none",borderBottom:scrolled?`1px solid ${C.line}`:"1px solid transparent",transition:"background .3s,border-color .3s"}}>
         <a href="#top" style={{background:"none",border:"none",cursor:"pointer",display:"flex",alignItems:"center",gap:11,textDecoration:"none"}}>
-          <LogoMark s={38} /><Wordmark color={navColor} size={21} />
+          <Wordmark color={scrolled ? C.plum : "#fff"} size={22} tagline />
         </a>
         <div className="nav-links" style={{display:"flex",gap:28,alignItems:"center"}}>
           {[["Salas","#salas"],["Como funciona","#como"],["Planos","#planos"],["FAQ","#faq"]].map(([l,id])=>(
@@ -284,7 +284,7 @@ export default function Landing({ rooms = [], account = null }) {
         <div style={{maxWidth:1120,margin:"0 auto"}}>
           <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))",gap:40,marginBottom:44}}>
             <div>
-              <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}><LogoMark s={34}/><Wordmark color="#fff" size={19}/></div>
+              <div style={{marginBottom:14}}><Wordmark color="#fff" size={22} tagline/></div>
               <p style={{fontSize:13,lineHeight:1.8}}>Coworking para profissionais da saúde, bem-estar e estética. Estrutura completa, cadastro verificado e flexibilidade para atender.</p>
               <div style={{display:"flex",gap:10,marginTop:20}}>
                 <a href="https://instagram.com/vidahprime" target="_blank" rel="noreferrer" style={{width:38,height:38,borderRadius:10,background:"rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center"}}><Ic n="instagram" s={18} c="#fff"/></a>
