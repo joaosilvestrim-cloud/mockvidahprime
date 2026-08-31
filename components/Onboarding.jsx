@@ -28,6 +28,8 @@ export default function Onboarding({ initial }) {
   });
   const [docs, setDocs] = useState({ professional:false, address:false, personal:false });
   const [docNames, setDocNames] = useState({});
+  const [signPhase, setSignPhase] = useState("idle"); // idle | signing | local
+  const [sig, setSig] = useState({ signUrl:null, docToken:null });
   const fileRefs = { professional: useRef(), address: useRef(), personal: useRef() };
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
@@ -89,8 +91,37 @@ export default function Onboarding({ initial }) {
   };
   const docsOk = docs.address && docs.personal;
 
-  // STEP 3 — assina contrato e envia
-  const submit = async () => {
+  // STEP 3 — assinatura digital (ZapSign) com fallback para aceite simples
+  const startSign = async () => {
+    setErr(""); setBusy(true);
+    try {
+      const res = await fetch("/api/signature/create", { method: "POST" });
+      const j = await res.json();
+      setBusy(false);
+      if (!res.ok) { setErr(j.error || "Falha ao iniciar a assinatura."); return; }
+      if (j.mode === "local") { setSignPhase("local"); return; }
+      setSig({ signUrl: j.signUrl, docToken: j.docToken });
+      setSignPhase("signing");
+      try { window.open(j.signUrl, "_blank", "noopener"); } catch {}
+    } catch { setBusy(false); setErr("Sem conexão. Tente de novo."); }
+  };
+
+  const confirmSigned = async () => {
+    setErr(""); setBusy(true);
+    try {
+      const res = await fetch("/api/signature/status", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ docToken: sig.docToken }),
+      });
+      const j = await res.json();
+      setBusy(false);
+      if (!res.ok) { setErr(j.error || "Falha ao confirmar a assinatura."); return; }
+      if (j.signed) { setStep(4); return; }
+      setErr("Ainda não recebemos sua assinatura. Assine na aba aberta e clique de novo aqui.");
+    } catch { setBusy(false); setErr("Sem conexão. Tente de novo."); }
+  };
+
+  const localSubmit = async () => {
     setErr("");
     if (!form.accept) { setErr("É preciso aceitar o contrato."); return; }
     setBusy(true);
@@ -191,10 +222,28 @@ export default function Onboarding({ initial }) {
                 <p style={{marginBottom:8}}><strong>5. Cancelamento.</strong> Cancelamentos com +48h de antecedência viram crédito válido por 60 dias. Com -48h, o valor é considerado utilizado.</p>
                 <p><strong>6. Foro.</strong> Comarca de Sorocaba/SP.</p>
               </div>
-              <label style={{display:"flex",gap:12,alignItems:"flex-start",marginTop:18,cursor:"pointer"}}>
-                <input type="checkbox" checked={form.accept} onChange={e=>set("accept",e.target.checked)} style={{marginTop:3,width:18,height:18,accentColor:C.teal}}/>
-                <span style={{fontSize:13,color:C.ink,lineHeight:1.6}}>Li e aceito o contrato e o regulamento. Assino digitalmente e reconheço a validade jurídica deste aceite (MP 2.200-2/2001 e Lei 14.063/2020).</span>
-              </label>
+              {signPhase==="signing" ? (
+                <div style={{marginTop:18}}>
+                  <div style={{background:C.tealSoft,borderRadius:12,padding:"12px 16px",display:"flex",gap:10,alignItems:"flex-start",marginBottom:12}}>
+                    <Ic n="shield" s={20} c={C.tealDeep} style={{flexShrink:0,marginTop:1}}/>
+                    <div style={{fontSize:13,color:C.tealDeep,lineHeight:1.6}}>Sua assinatura abriu em outra aba, pela ZapSign. Assine por lá e volte aqui. Também enviamos o link para o seu e-mail.</div>
+                  </div>
+                  <div style={{border:`1px solid ${C.line}`,borderRadius:12,overflow:"hidden",height:440,background:C.bg}}>
+                    <iframe src={sig.signUrl} title="Assinatura digital" style={{width:"100%",height:"100%",border:"none"}} allow="camera"/>
+                  </div>
+                  <a href={sig.signUrl} target="_blank" rel="noreferrer" style={{...btnGhost,marginTop:10,padding:"10px 16px",fontSize:13,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:7}}>Abrir assinatura em nova aba <Ic n="arrowR" s={15} c={C.ink}/></a>
+                </div>
+              ) : signPhase==="local" ? (
+                <label style={{display:"flex",gap:12,alignItems:"flex-start",marginTop:18,cursor:"pointer"}}>
+                  <input type="checkbox" checked={form.accept} onChange={e=>set("accept",e.target.checked)} style={{marginTop:3,width:18,height:18,accentColor:C.teal}}/>
+                  <span style={{fontSize:13,color:C.ink,lineHeight:1.6}}>Li e aceito o contrato e o regulamento. Assino digitalmente e reconheço a validade jurídica deste aceite (MP 2.200-2/2001 e Lei 14.063/2020).</span>
+                </label>
+              ) : (
+                <div style={{marginTop:18,display:"flex",gap:10,alignItems:"center",background:C.lilacSoft,borderRadius:12,padding:"13px 16px"}}>
+                  <Ic n="shield" s={20} c={C.indigo} style={{flexShrink:0}}/>
+                  <div style={{fontSize:13,color:C.ink,lineHeight:1.55}}>Você vai assinar o contrato digitalmente pela <b>ZapSign</b>. Assinatura com validade jurídica (MP 2.200-2/2001 e Lei 14.063/2020).</div>
+                </div>
+              )}
             </div>
           )}
 
@@ -218,12 +267,13 @@ export default function Onboarding({ initial }) {
             {step>1 && !(step===1 && !loggedIn) && (
               <button onClick={()=>setStep(s=>s-1)} style={{...btnGhost,flex:1,padding:14,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",gap:7}}><Ic n="arrowL" s={17} c={C.ink}/> Voltar</button>
             )}
-            <button onClick={()=>{ if(step===0)createAccount(); else if(step===1)saveData(); else if(step===2){ if(docsOk)setStep(3); else setErr("Envie o comprovante de endereço e o documento pessoal."); } else if(step===3)submit(); }}
+            <button onClick={()=>{ if(step===0)createAccount(); else if(step===1)saveData(); else if(step===2){ if(docsOk)setStep(3); else setErr("Envie o comprovante de endereço e o documento pessoal."); } else if(step===3){ if(signPhase==="signing")confirmSigned(); else if(signPhase==="local")localSubmit(); else startSign(); } }}
               disabled={busy}
               style={{flex:2,padding:14,border:"none",borderRadius:12,background:C.teal,color:"#fff",fontWeight:700,fontSize:15,cursor:busy?"default":"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8,boxShadow:"0 8px 22px rgba(20,160,139,0.3)",opacity:busy?0.7:1}}>
               {busy ? <Ic n="spinner" s={18} c="#fff" className="vp-spin"/> :
                 step===0 ? <>Criar conta <Ic n="arrowR" s={17} c="#fff"/></> :
-                step===3 ? <>Assinar e enviar cadastro</> : <>Continuar <Ic n="arrowR" s={17} c="#fff"/></>}
+                step===3 ? (signPhase==="signing" ? <>Já assinei — continuar <Ic n="check" s={17} c="#fff"/></> : signPhase==="local" ? <>Assinar e enviar cadastro</> : <>Assinar contrato digitalmente <Ic n="arrowR" s={17} c="#fff"/></>) :
+                <>Continuar <Ic n="arrowR" s={17} c="#fff"/></>}
             </button>
           </div>
         )}

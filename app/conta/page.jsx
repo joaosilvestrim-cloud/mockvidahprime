@@ -25,10 +25,18 @@ export default async function ContaPage() {
     .eq("used", false)
     .gt("expires_at", new Date().toISOString());
 
+  const { data: contract } = await supabase
+    .from("contracts")
+    .select("signed_url,provider,status,created_at")
+    .eq("profile_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
   return (
     <>
       <AppTop />
-      <Conta profile={profile} bookings={bookings || []} credits={credits || []} />
+      <Conta profile={profile} bookings={bookings || []} credits={credits || []} contract={contract} />
     </>
   );
 }

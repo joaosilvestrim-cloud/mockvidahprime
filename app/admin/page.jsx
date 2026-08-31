@@ -13,7 +13,7 @@ export default async function AdminPage() {
   if (me?.role !== "admin") redirect("/conta");
 
   const { data: pendings } = await supabase
-    .from("profiles").select("id,full_name,email,phone,cpf,area,council_type,council_number,contract_signed_at,created_at,documents(kind,storage_path)")
+    .from("profiles").select("id,full_name,email,phone,cpf,area,council_type,council_number,contract_signed_at,created_at,documents(kind,storage_path),contracts(signed_url,provider,status)")
     .eq("status", "pending").order("created_at", { ascending: true });
 
   const { data: professionals } = await supabase

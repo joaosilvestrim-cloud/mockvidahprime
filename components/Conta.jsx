@@ -8,7 +8,7 @@ const MODE = { avulso:"Hora Avulsa", flex:"Período Flex", fixo:"Período Fixo" 
 const fmtDate = (iso) => new Date(iso).toLocaleDateString("pt-BR",{day:"2-digit",month:"2-digit",year:"numeric"});
 const fmtTime = (iso) => new Date(iso).toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
 
-export default function Conta({ profile, bookings, credits }) {
+export default function Conta({ profile, bookings, credits, contract }) {
   const router = useRouter();
   const supabase = createClient();
   const [tab, setTab] = useState("reservas");
@@ -125,6 +125,9 @@ export default function Conta({ profile, bookings, credits }) {
               <p style={{marginBottom:8}}>Licença não exclusiva de uso das salas para atendimentos em saúde, bem-estar e estética, com responsabilidade sanitária e civil do contratante, respeito ao intervalo de higienização e às regras de cancelamento (48h).</p>
               {profile.contract_signed_at && <p style={{fontSize:11,color:C.faint,marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:10}}>Assinado digitalmente em {new Date(profile.contract_signed_at).toLocaleString("pt-BR")} · Hash: {profile.contract_hash} · MP 2.200-2/2001 e Lei 14.063/2020</p>}
             </div>
+            {contract?.signed_url && (
+              <a href={contract.signed_url} target="_blank" rel="noreferrer" style={{...btnPrimary,marginTop:16,padding:"11px 20px",fontSize:13.5,textDecoration:"none",display:"inline-flex",alignItems:"center",gap:8}}><Ic n="doc" s={16} c="#fff"/> Baixar contrato assinado</a>
+            )}
           </div>
         )}
 

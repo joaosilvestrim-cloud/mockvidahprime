@@ -343,7 +343,9 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
                   <Info label="CPF" value={sel.cpf} />
                   <Info label="Conselho / área" value={`${sel.council_type||""} ${sel.council_number||""}`.trim() || "—"} />
                   <Info label="Área de atuação" value={sel.area} />
-                  <Info label="Contrato" value={sel.contract_signed_at ? "Assinado" : "Pendente"} />
+                  {(() => { const cu = (sel.contracts||[]).find(c=>c.signed_url)?.signed_url; const zap = (sel.contracts||[]).some(c=>c.provider==="zapsign"); return (
+                    <Info label="Contrato" value={sel.contract_signed_at ? (zap ? "Assinado (ZapSign)" : "Assinado") : "Pendente"} action={cu && { href: cu, label: "Ver PDF", ic: "doc" }} />
+                  ); })()}
                 </div>
               </div>
 
