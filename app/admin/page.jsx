@@ -13,12 +13,12 @@ export default async function AdminPage() {
   if (me?.role !== "admin") redirect("/conta");
 
   const { data: pendings } = await supabase
-    .from("profiles").select("id,full_name,area,council_type,council_number,created_at,documents(kind)")
+    .from("profiles").select("id,full_name,email,phone,cpf,area,council_type,council_number,contract_signed_at,created_at,documents(kind,storage_path)")
     .eq("status", "pending").order("created_at", { ascending: true });
 
   const { data: professionals } = await supabase
-    .from("profiles").select("id,full_name,area,council_type,council_number,status,created_at")
-    .eq("role", "professional").order("created_at", { ascending: false }).limit(200);
+    .from("profiles").select("id,full_name,email,phone,area,council_type,council_number,status,created_at")
+    .eq("role", "professional").order("created_at", { ascending: false }).limit(300);
 
   const start = new Date(); start.setHours(0,0,0,0);
   const end = new Date(start); end.setDate(end.getDate()+1);
@@ -28,12 +28,14 @@ export default async function AdminPage() {
     .eq("status","reserved").gte("start_at", start.toISOString()).lt("start_at", end.toISOString())
     .order("start_at", { ascending: true });
 
-  const { data: rooms } = await supabase.from("rooms").select("id,name,category,available,accent,icon").order("sort");
+  const { data: rooms } = await supabase.from("rooms").select("id,slug,name,category,description,price_hour,available,accent,icon,specialties,sort").order("sort");
+  const { data: settingsRows } = await supabase.from("settings").select("key,value");
+  const settings = Object.fromEntries((settingsRows || []).map(s => [s.key, s.value]));
 
   return (
     <>
       <AppTop />
-      <Admin pendings={pendings||[]} professionals={professionals||[]} todaySlots={todaySlots||[]} rooms={rooms||[]} />
+      <Admin pendings={pendings||[]} professionals={professionals||[]} todaySlots={todaySlots||[]} rooms={rooms||[]} settings={settings} />
     </>
   );
 }
