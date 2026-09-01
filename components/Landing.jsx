@@ -309,7 +309,7 @@ export default function Landing({ rooms = [], account = null }) {
           </div>
           <div style={{borderTop:"1px solid rgba(255,255,255,0.1)",paddingTop:28,display:"flex",justifyContent:"space-between",flexWrap:"wrap",gap:12,fontSize:12}}>
             <span>© 2026 Vidah Prime · Espaço de saúde</span>
-            <a href="https://drivedata.com.br" target="_blank" rel="noopener noreferrer" style={{color:"rgba(255,255,255,0.55)",textDecoration:"none",fontWeight:600}}>Powered by DriveData 💙</a>
+            <a href="https://www.drivedata.com.br/" target="_blank" rel="noopener noreferrer" style={{color:"rgba(255,255,255,0.55)",textDecoration:"none",fontWeight:600}}>Powered by DriveData 💙</a>
             <span style={{display:"flex",gap:20}}><a href="/entrar" style={{color:"rgba(255,255,255,0.5)",textDecoration:"none"}}>Entrar</a><a href="/admin" style={{color:"rgba(255,255,255,0.5)",textDecoration:"none"}}>Admin</a></span>
           </div>
         </div>
