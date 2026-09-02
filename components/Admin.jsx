@@ -181,8 +181,8 @@ export default function Admin({ pendings, professionals, todaySlots, rooms, sett
   // ---------- AJUSTES ----------
   const [cfg, setCfg] = useState({
     cleaning_buffer_min: settings?.cleaning_buffer_min || "30",
-    cancel_window_hours: settings?.cancel_window_hours || "48",
-    credit_validity_days: settings?.credit_validity_days || "60",
+    cancel_window_hours: settings?.cancel_window_hours || "24",
+    credit_validity_days: settings?.credit_validity_days || "180",
   });
   const saveCfg = async () => {
     setBusy(true);

@@ -3,6 +3,7 @@ import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { C, SH, F, Ic, btnPrimary, btnGhost } from "./brand";
+import { CONTRACT, REGULATION } from "@/lib/legal";
 
 const COUNCILS = ["CRP","CRM","CRO","CRN","CREFITO","CRFa","Estética","Bem-estar","Outro"];
 const DOCS = [
@@ -212,15 +213,24 @@ export default function Onboarding({ initial }) {
           {step===3 && (
             <div>
               <h3 style={{fontFamily:F.display,fontSize:19,fontWeight:600,color:C.ink,marginBottom:6}}>Contrato e regulamento</h3>
-              <p style={{color:C.slate,fontSize:13.5,marginBottom:16}}>Assinado uma única vez. Vale para todas as suas reservas futuras.</p>
-              <div style={{border:`1px solid ${C.line}`,borderRadius:12,padding:20,height:210,overflowY:"auto",fontSize:12.5,lineHeight:1.85,color:C.ink,background:C.bg}}>
-                <p style={{fontWeight:700,marginBottom:10}}>CONTRATO DE LICENÇA DE USO DE ESPAÇO E TERMO DE RESPONSABILIDADE</p>
-                <p style={{marginBottom:8}}><strong>1. Objeto.</strong> Licença temporária e não exclusiva de uso das salas da Vidah Prime, destinadas a atendimentos em saúde, bem-estar e estética.</p>
-                <p style={{marginBottom:8}}><strong>2. Responsabilidade sanitária e profissional.</strong> O CONTRATANTE se responsabiliza por manter regular sua situação junto aos órgãos competentes e à vigilância sanitária para a sua atividade, isentando a Vidah Prime de responsabilidade por atos profissionais.</p>
-                <p style={{marginBottom:8}}><strong>3. Responsabilidade civil.</strong> O CONTRATANTE responde civil e profissionalmente pelos serviços que presta a seus pacientes/clientes dentro do espaço.</p>
-                <p style={{marginBottom:8}}><strong>4. Regras de uso.</strong> Reservas com antecedência, respeito ao tempo de higienização entre atendimentos e às regras de cancelamento (48h).</p>
-                <p style={{marginBottom:8}}><strong>5. Cancelamento.</strong> Cancelamentos com +48h de antecedência viram crédito válido por 60 dias. Com -48h, o valor é considerado utilizado.</p>
-                <p><strong>6. Foro.</strong> Comarca de Sorocaba/SP.</p>
+              <p style={{color:C.slate,fontSize:13.5,marginBottom:16}}>Assinado uma única vez. Vale para todas as suas reservas futuras. Role para ler o contrato e o regulamento interno.</p>
+              <div style={{border:`1px solid ${C.line}`,borderRadius:12,padding:20,height:260,overflowY:"auto",fontSize:12,lineHeight:1.7,color:C.ink,background:C.bg}}>
+                <p style={{fontWeight:700,fontSize:12.5,marginBottom:10,color:C.plum}}>{CONTRACT.title}</p>
+                {CONTRACT.intro.map((t,i)=><p key={"ci"+i} style={{marginBottom:7}}>{t}</p>)}
+                {CONTRACT.clauses.map((c,i)=>(
+                  <div key={"cl"+i} style={{marginTop:10}}>
+                    <p style={{fontWeight:700,marginBottom:4}}>{c.t}</p>
+                    {c.p.map((t,j)=><p key={j} style={{marginBottom:5}}>{t}</p>)}
+                  </div>
+                ))}
+                <div style={{borderTop:`1px solid ${C.line}`,margin:"18px 0"}}/>
+                <p style={{fontWeight:700,fontSize:12.5,marginBottom:10,color:C.plum}}>{REGULATION.title}</p>
+                {REGULATION.sections.map((s,i)=>(
+                  <div key={"rg"+i} style={{marginTop:10}}>
+                    <p style={{fontWeight:700,marginBottom:4}}>{s.t}</p>
+                    {s.p.map((t,j)=><p key={j} style={{marginBottom:5}}>{t}</p>)}
+                  </div>
+                ))}
               </div>
               {signPhase==="signing" ? (
                 <div style={{marginTop:18}}>
@@ -236,7 +246,7 @@ export default function Onboarding({ initial }) {
               ) : signPhase==="local" ? (
                 <label style={{display:"flex",gap:12,alignItems:"flex-start",marginTop:18,cursor:"pointer"}}>
                   <input type="checkbox" checked={form.accept} onChange={e=>set("accept",e.target.checked)} style={{marginTop:3,width:18,height:18,accentColor:C.teal}}/>
-                  <span style={{fontSize:13,color:C.ink,lineHeight:1.6}}>Li e aceito o contrato e o regulamento. Assino digitalmente e reconheço a validade jurídica deste aceite (MP 2.200-2/2001 e Lei 14.063/2020).</span>
+                  <span style={{fontSize:13,color:C.ink,lineHeight:1.6}}>Li e aceito o <b>Contrato de Prestação de Serviços</b> e o <b>Regulamento Interno</b> da Vidah Prime. Assino eletronicamente e reconheço a validade jurídica deste aceite (MP 2.200-2/2001 e Lei 14.063/2020).</span>
                 </label>
               ) : (
                 <div style={{marginTop:18,display:"flex",gap:10,alignItems:"center",background:C.lilacSoft,borderRadius:12,padding:"13px 16px"}}>

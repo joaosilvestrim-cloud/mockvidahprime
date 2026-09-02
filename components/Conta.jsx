@@ -18,10 +18,10 @@ export default function Conta({ profile, bookings, credits, contract }) {
 
   const logout = async () => { await supabase.auth.signOut(); router.push("/"); router.refresh(); };
   const cancel = async (id) => {
-    if (!confirm("Cancelamentos com menos de 48h não geram crédito. Deseja cancelar?")) return;
+    if (!confirm("Cancelamentos fora do prazo não geram crédito (24h para reservas por hora ou período, 7 dias para o mensal). Deseja cancelar?")) return;
     const { data, error } = await supabase.rpc("cancel_booking", { p_booking: id });
     if (error) { alert("Erro: " + error.message); return; }
-    alert(data?.credited ? `Reserva cancelada. Crédito de ${money(data.amount)} disponível por 60 dias.` : "Reserva cancelada. Sem crédito (menos de 48h).");
+    alert(data?.credited ? `Reserva cancelada. Crédito de ${money(data.amount)} disponível por 6 meses.` : "Reserva cancelada. Sem crédito (cancelamento fora do prazo).");
     router.refresh();
   };
 
@@ -122,7 +122,7 @@ export default function Conta({ profile, bookings, credits, contract }) {
             <div style={{border:`1px solid ${C.line}`,borderRadius:12,padding:20,fontSize:12.5,lineHeight:1.9,color:C.ink,background:C.bg}}>
               <p style={{marginBottom:8}}><strong>Contratante:</strong> {profile.full_name} · CPF {profile.cpf||"—"} · {profile.council_type} {profile.council_number||""}</p>
               <p style={{marginBottom:8}}><strong>Contratada:</strong> Vidah Prime · Av. General Osório, 736 · Sorocaba/SP</p>
-              <p style={{marginBottom:8}}>Licença não exclusiva de uso das salas para atendimentos em saúde, bem-estar e estética, com responsabilidade sanitária e civil do contratante, respeito ao intervalo de higienização e às regras de cancelamento (48h).</p>
+              <p style={{marginBottom:8}}>Cessão de uso das salas para atendimentos em saúde, bem-estar e estética, com responsabilidade sanitária e civil do contratante, respeito ao intervalo de higienização e às regras de cancelamento (24h para reservas por hora ou período, 7 dias para o mensal).</p>
               {profile.contract_signed_at && <p style={{fontSize:11,color:C.faint,marginTop:14,borderTop:`1px solid ${C.line}`,paddingTop:10}}>Assinado digitalmente em {new Date(profile.contract_signed_at).toLocaleString("pt-BR")} · Hash: {profile.contract_hash} · MP 2.200-2/2001 e Lei 14.063/2020</p>}
             </div>
             {contract?.signed_url && (

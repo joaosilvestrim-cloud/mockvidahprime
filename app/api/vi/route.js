@@ -37,7 +37,7 @@ PAGAMENTO:
 - Pix ou cartão de crédito, no momento da reserva.
 
 CANCELAMENTO:
-- O valor não volta em dinheiro, vira crédito. Com mais de 48h de antecedência, o crédito vale por até 60 dias. Com menos de 48h, o valor é considerado utilizado.
+- O valor não volta em dinheiro, vira crédito. Nas reservas por hora ou período, com mais de 24h de antecedência o crédito vale por até 6 meses; no plano mensal, o prazo é de 7 dias. Fora do prazo, o valor é considerado utilizado.
 
 HIGIENIZAÇÃO:
 - Entre um atendimento e outro, a sala fica um tempo bloqueada para limpeza e preparo.
@@ -65,7 +65,7 @@ function fallback(message, rooms) {
   if (/preç|preco|valor|quanto/.test(t)) return `Os valores dependem da sala e começam em ${money(min)}/hora. Você pode usar por Hora Avulsa, Período Flex (manhã ou tarde) ou Período Fixo (semanal). Quer que eu te explique cada um?`;
   if (/reserv|agend|alug/.test(t)) return "É só clicar em Reservar aqui no site. Antes da primeira reserva a gente faz um cadastrinho rápido (documentos e contrato, uma vez só). Depois de aprovado, você reserva quando quiser 🙂";
   if (/cadastr|document/.test(t)) return "O cadastro é único: você envia um documento que comprove sua atuação (quando aplicável), comprovante de endereço e documento pessoal, e assina o contrato uma vez. A equipe aprova e libera seu acesso.";
-  if (/cancel/.test(t)) return "Sem problema. O valor vira crédito: com mais de 48h de antecedência ele vale por até 60 dias; com menos de 48h, é considerado utilizado.";
+  if (/cancel/.test(t)) return "Sem problema. O valor vira crédito: nas reservas por hora ou período, com mais de 24h de antecedência ele vale por até 6 meses; no plano mensal, o prazo é de 7 dias. Fora do prazo, é considerado utilizado.";
   if (/inclu|café|cafe|recep|espera|estrutura|estacion/.test(t)) return "A reserva já inclui recepcionista para seus pacientes, sala de espera com TV e música, café, água, ar-condicionado, internet, limpeza e estacionamento próprio. Você só se preocupa com o atendimento 💙";
   if (/pag|pix|cart/.test(t)) return "O pagamento é por Pix ou cartão de crédito, na hora da reserva.";
   if (/visit|conhecer/.test(t)) return "Vai ser um prazer te receber! Você pode agendar uma visita para conhecer o espaço antes de reservar. Quer que eu chame a equipe pra marcar?";
